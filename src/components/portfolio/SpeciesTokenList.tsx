@@ -31,10 +31,12 @@ const rarityOrder: Record<string, number> = {
   'Common': 1,
 };
 
+type SortField2 = 'name' | 'symbol' | 'units' | 'value' | 'marketCap' | 'holders';
+
 export function SpeciesTokenList({ species, isLoading, className }: SpeciesTokenListProps) {
   const [search, setSearch] = useState('');
   const [visibleCount, setVisibleCount] = useState(20);
-  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortField, setSortField] = useState<SortField2>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [preSnapshot, setPreSnapshot] = useState(true);
@@ -67,10 +69,11 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
         case 'holders':
           comparison = a.holders - b.holders;
           break;
-        case 'rarity':
-          const aRarity = rarityOrder[a.rarity.split(' ')[0]] || 0;
-          const bRarity = rarityOrder[b.rarity.split(' ')[0]] || 0;
-          comparison = aRarity - bRarity;
+        case 'units':
+          comparison = a.holders - b.holders; // Placeholder sort
+          break;
+        case 'value':
+          comparison = a.marketCap - b.marketCap; // Placeholder sort
           break;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
@@ -81,11 +84,11 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
 
   const displayedSpecies = filteredAndSortedSpecies.slice(0, visibleCount);
 
-  const toggleSort = (field: SortField) => {
+  const toggleSort = (field: SortField2) => {
     if (sortField === field) {
       setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortField(field);
+      setSortField(field as SortField2);
       setSortOrder('asc');
     }
   };
@@ -146,7 +149,7 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
             </SelectContent>
           </Select>
 
-          <Select value={sortField} onValueChange={(v) => setSortField(v as SortField)}>
+          <Select value={sortField} onValueChange={(v) => setSortField(v as SortField2)}>
             <SelectTrigger className="w-full sm:w-[160px] bg-muted border-0">
               <ArrowUpDown className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Sort by" />
@@ -154,9 +157,10 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
             <SelectContent>
               <SelectItem value="name">Name</SelectItem>
               <SelectItem value="symbol">Ticker</SelectItem>
+              <SelectItem value="units">Units Held</SelectItem>
+              <SelectItem value="value">Value</SelectItem>
               <SelectItem value="marketCap">Market Cap</SelectItem>
               <SelectItem value="holders">Holders</SelectItem>
-              <SelectItem value="rarity">Rarity</SelectItem>
             </SelectContent>
           </Select>
 
@@ -191,58 +195,66 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
           <thead>
             <tr className="border-b border-border text-left text-sm text-muted-foreground">
               <th className="p-4 font-medium cursor-pointer hover:text-foreground" onClick={() => toggleSort('name')}>
-                DNA Asset {sortField === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                Name {sortField === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
               <th className="p-4 font-medium cursor-pointer hover:text-foreground" onClick={() => toggleSort('symbol')}>
                 Ticker {sortField === 'symbol' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('rarity')}>
-                Rarity {sortField === 'rarity' && (sortOrder === 'asc' ? '↑' : '↓')}
+              <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('units')}>
+                Units Held {sortField === 'units' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="p-4 font-medium text-right">Status</th>
-              <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('holders')}>
-                Holders {sortField === 'holders' && (sortOrder === 'asc' ? '↑' : '↓')}
+              <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('value')}>
+                Value {sortField === 'value' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
               <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('marketCap')}>
-                Market Cap {sortField === 'marketCap' && (sortOrder === 'asc' ? '↑' : '↓')}
+                Mcap {sortField === 'marketCap' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="p-4 font-medium cursor-pointer hover:text-foreground text-right" onClick={() => toggleSort('holders')}>
+                Holders {sortField === 'holders' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
             </tr>
           </thead>
           <tbody>
-            {displayedSpecies.map((token) => (
-              <tr
-                key={token.tokenAddress}
-                className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-              >
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground overflow-hidden">
-                      {token.image ? (
-                        <img src={token.image} alt={token.name} className="h-full w-full object-cover" />
-                      ) : (
-                        token.symbol.slice(0, 2)
-                      )}
+            {displayedSpecies.map((token, idx) => {
+              // Generate dummy data for units and value
+              const unitsHeld = Math.floor(Math.random() * 50000 + 1000);
+              const unitValue = token.marketCap / (token.holders * 100);
+              const value = unitsHeld * unitValue;
+              return (
+                <tr
+                  key={token.tokenAddress}
+                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                >
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground overflow-hidden">
+                        {token.image ? (
+                          <img src={token.image} alt={token.name} className="h-full w-full object-cover" />
+                        ) : (
+                          token.symbol.slice(0, 2)
+                        )}
+                      </div>
+                      <p className="font-medium">{token.name}</p>
                     </div>
-                    <p className="font-medium">{token.name}</p>
-                  </div>
-                </td>
-                <td className="p-4 font-mono text-muted-foreground">
-                  ${token.symbol}
-                </td>
-                <td className={cn("p-4 text-right font-medium", getRarityColor(token.rarity))}>
-                  {token.rarity.split(' ')[0]}
-                </td>
-                <td className="p-4 text-right text-sm text-muted-foreground">
-                  {token.status}
-                </td>
-                <td className="p-4 text-right font-mono">
-                  {token.holders}
-                </td>
-                <td className="p-4 text-right font-mono font-medium">
-                  {token.marketCapFormatted}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-4 font-mono text-muted-foreground">
+                    ${token.symbol}
+                  </td>
+                  <td className="p-4 text-right font-mono">
+                    {unitsHeld.toLocaleString()}
+                  </td>
+                  <td className="p-4 text-right font-mono text-success">
+                    ${value.toFixed(2)}
+                  </td>
+                  <td className="p-4 text-right font-mono text-muted-foreground">
+                    {token.marketCapFormatted}
+                  </td>
+                  <td className="p-4 text-right font-mono">
+                    {token.holders}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

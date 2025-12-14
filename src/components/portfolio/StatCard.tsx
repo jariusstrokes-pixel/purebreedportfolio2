@@ -8,23 +8,27 @@ interface StatCardProps {
   icon?: React.ReactNode;
   className?: string;
   delay?: number;
+  valueClassName?: string;
 }
 
-export function StatCard({ label, value, change, icon, className, delay = 0 }: StatCardProps) {
+export function StatCard({ label, value, change, icon, className, delay = 0, valueClassName }: StatCardProps) {
   const isPositive = change !== undefined && change >= 0;
   
   return (
     <div 
       className={cn(
-        "relative overflow-hidden rounded-lg bg-card p-5 shadow-card animate-slide-up",
+        "relative overflow-hidden rounded-lg bg-card p-4 shadow-card animate-slide-up",
         className
       )}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-semibold font-mono tracking-tight">{value}</p>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            {icon}
+            <p className="text-xs font-medium">{label}</p>
+          </div>
+          <p className={cn("text-xl font-bold font-mono", valueClassName)}>{value}</p>
           {change !== undefined && (
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
@@ -39,11 +43,6 @@ export function StatCard({ label, value, change, icon, className, delay = 0 }: S
             </div>
           )}
         </div>
-        {icon && (
-          <div className="rounded-md bg-muted p-2 text-muted-foreground">
-            {icon}
-          </div>
-        )}
       </div>
       <div className="absolute inset-0 bg-gradient-glow opacity-30 pointer-events-none" />
     </div>

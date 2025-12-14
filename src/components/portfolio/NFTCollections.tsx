@@ -5,45 +5,46 @@ import { ExternalLink } from 'lucide-react';
 interface NFTCollection {
   id: string;
   name: string;
-  items: number;
+  category: 'oocytes' | 'enzymes' | 'purebreeds';
+  totalItems: number;
   floorPrice: number;
-  totalValue: number;
+  totalVolume: number;
+  myHoldings: number;
   status: 'active' | 'coming-soon';
   openseaUrl?: string;
 }
 
 const collections: NFTCollection[] = [
   {
-    id: 'fcbrwa-enzyme',
-    name: 'FCBRWA Enzyme',
-    items: 324,
-    floorPrice: 0.85,
-    totalValue: 275.4,
+    id: 'fcbrwa-oocytes',
+    name: 'FCBRWA Oocytes',
+    category: 'oocytes',
+    totalItems: 512,
+    floorPrice: 0.65,
+    totalVolume: 332.8,
+    myHoldings: 12,
     status: 'active',
     openseaUrl: 'https://opensea.io/collection/fcbrwa-enzyme',
   },
   {
-    id: 'fcbc-fun-pass',
-    name: 'FCBC Fun Pass',
-    items: 156,
-    floorPrice: 0.42,
-    totalValue: 65.52,
+    id: 'fcbrwa-enzyme',
+    name: 'FCBRWA Enzyme',
+    category: 'enzymes',
+    totalItems: 324,
+    floorPrice: 0.85,
+    totalVolume: 275.4,
+    myHoldings: 8,
     status: 'active',
+    openseaUrl: 'https://opensea.io/collection/fcbrwa-enzyme',
   },
   {
     id: 'fyre-purebreds',
     name: 'Fyre PureBreeds',
-    items: 0,
+    category: 'purebreeds',
+    totalItems: 0,
     floorPrice: 0,
-    totalValue: 0,
-    status: 'coming-soon',
-  },
-  {
-    id: 'fyre-hybrids',
-    name: 'Fyre Hybrids',
-    items: 0,
-    floorPrice: 0,
-    totalValue: 0,
+    totalVolume: 0,
+    myHoldings: 0,
     status: 'coming-soon',
   },
 ];
@@ -51,6 +52,15 @@ const collections: NFTCollection[] = [
 interface NFTCollectionsProps {
   className?: string;
 }
+
+const getCategoryLabel = (category: string) => {
+  switch (category) {
+    case 'oocytes': return 'Oocytes';
+    case 'enzymes': return 'Enzymes';
+    case 'purebreeds': return 'PureBreeds';
+    default: return category;
+  }
+};
 
 export function NFTCollections({ className }: NFTCollectionsProps) {
   return (
@@ -61,67 +71,91 @@ export function NFTCollections({ className }: NFTCollectionsProps) {
           {collections.length} collections
         </span>
       </div>
-      <div className="p-4">
-        <p className="text-sm text-muted-foreground mb-4">
-          Pre-assets that guarantee your airdrop.{' '}
-          <a 
-            href="https://farcaster.xyz/warplette" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-primary hover:underline inline-flex items-center gap-1"
-          >
-            Learn more <ExternalLink className="h-3 w-3" />
-          </a>
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {collections.map((collection) => (
-            <a
-              key={collection.id}
-              href={collection.openseaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "flex items-center gap-4 p-4 rounded-lg transition-colors group",
-                collection.status === 'coming-soon' 
-                  ? "bg-muted/20 opacity-70 cursor-default pointer-events-none" 
-                  : "bg-muted/30 hover:bg-muted/50 cursor-pointer"
-              )}
-            >
-              <div className={cn(
-                "h-14 w-14 rounded-lg flex items-center justify-center text-lg font-bold shrink-0",
-                collection.status === 'coming-soon' 
-                  ? "bg-muted text-muted-foreground" 
-                  : "bg-gradient-primary text-primary-foreground"
-              )}>
-                {collection.name.split(' ').map(w => w[0]).join('')}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium truncate">{collection.name}</p>
-                  {collection.status === 'coming-soon' && (
-                    <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/30 shrink-0">
-                      Coming Soon
-                    </Badge>
-                  )}
-                  {collection.status === 'active' && collection.openseaUrl && (
-                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {collection.status === 'coming-soon' ? 'TBA' : `${collection.items} items`}
-                </p>
-              </div>
-              {collection.status === 'active' && (
-                <div className="text-right shrink-0">
-                  <p className="font-mono font-medium">{collection.totalValue.toFixed(2)} ETH</p>
-                  <p className="text-sm text-muted-foreground">
-                    Floor: {collection.floorPrice} ETH
-                  </p>
-                </div>
-              )}
-            </a>
-          ))}
+      
+      {/* Category Breakdown */}
+      <div className="p-4 border-b border-border">
+        <div className="flex gap-2 flex-wrap">
+          {['oocytes', 'enzymes', 'purebreeds'].map((cat) => {
+            const count = collections.filter(c => c.category === cat).length;
+            return (
+              <Badge key={cat} variant="outline" className="text-xs">
+                {getCategoryLabel(cat)}: {count}
+              </Badge>
+            );
+          })}
         </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-muted-foreground">
+              <th className="p-4 font-medium">Name</th>
+              <th className="p-4 font-medium text-right">Total Items</th>
+              <th className="p-4 font-medium text-right">Floor</th>
+              <th className="p-4 font-medium text-right">Volume</th>
+              <th className="p-4 font-medium text-right">My Holdings</th>
+            </tr>
+          </thead>
+          <tbody>
+            {collections.map((collection) => (
+              <tr 
+                key={collection.id} 
+                className={cn(
+                  "border-b border-border/50 hover:bg-muted/30 transition-colors",
+                  collection.status === 'coming-soon' && "opacity-60"
+                )}
+              >
+                <td className="p-4">
+                  <a
+                    href={collection.openseaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "flex items-center gap-3 group",
+                      !collection.openseaUrl && "pointer-events-none"
+                    )}
+                  >
+                    <div className={cn(
+                      "h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold shrink-0",
+                      collection.status === 'coming-soon' 
+                        ? "bg-muted text-muted-foreground" 
+                        : "bg-gradient-primary text-primary-foreground"
+                    )}>
+                      {collection.name.split(' ').map(w => w[0]).join('')}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{collection.name}</span>
+                        {collection.status === 'coming-soon' && (
+                          <Badge variant="outline" className="text-[10px] bg-warning/10 text-warning border-warning/30">
+                            Soon
+                          </Badge>
+                        )}
+                        {collection.openseaUrl && (
+                          <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{getCategoryLabel(collection.category)}</span>
+                    </div>
+                  </a>
+                </td>
+                <td className="p-4 text-right font-mono">
+                  {collection.status === 'coming-soon' ? '-' : collection.totalItems.toLocaleString()}
+                </td>
+                <td className="p-4 text-right font-mono">
+                  {collection.status === 'coming-soon' ? '-' : `${collection.floorPrice} ETH`}
+                </td>
+                <td className="p-4 text-right font-mono">
+                  {collection.status === 'coming-soon' ? '-' : `${collection.totalVolume.toFixed(1)} ETH`}
+                </td>
+                <td className="p-4 text-right font-mono font-medium">
+                  {collection.status === 'coming-soon' ? '-' : collection.myHoldings}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
