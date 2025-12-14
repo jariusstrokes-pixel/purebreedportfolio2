@@ -19,7 +19,7 @@ const collections: NFTCollection[] = [
     id: 'fcbrwa-oocytes',
     name: 'FCBRWA Oocytes',
     category: 'oocytes',
-    totalItems: 512,
+    totalItems: 1234,
     floorPrice: 0.65,
     totalVolume: 332.8,
     myHoldings: 12,
@@ -30,7 +30,7 @@ const collections: NFTCollection[] = [
     id: 'fcbrwa-enzyme',
     name: 'FCBRWA Enzyme',
     category: 'enzymes',
-    totalItems: 324,
+    totalItems: 10000,
     floorPrice: 0.85,
     totalVolume: 275.4,
     myHoldings: 8,
@@ -65,15 +65,9 @@ const getCategoryLabel = (category: string) => {
 export function NFTCollections({ className }: NFTCollectionsProps) {
   return (
     <div className={cn("rounded-lg bg-card shadow-card", className)}>
-      <div className="flex items-center justify-between border-b border-border p-4">
+      <div className="flex flex-col border-b border-border p-4 gap-3">
         <h3 className="font-semibold">NFT Pre-Assets</h3>
-        <span className="text-sm text-muted-foreground font-mono">
-          {collections.length} collections
-        </span>
-      </div>
-      
-      {/* My Holdings Breakdown */}
-      <div className="p-4 border-b border-border">
+        {/* My Holdings Breakdown */}
         <div className="flex gap-2 flex-wrap">
           <Badge variant="outline" className="text-xs">Oocytes: 1</Badge>
           <Badge variant="outline" className="text-xs">Enzymes: 1</Badge>

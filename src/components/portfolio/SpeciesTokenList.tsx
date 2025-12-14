@@ -114,13 +114,29 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
     );
   }
 
+  // Calculate total value
+  const totalValue = useMemo(() => {
+    return species.reduce((total, token) => {
+      const hash = token.tokenAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      const unitsHeld = (hash % 50000) + 1000;
+      const unitValue = token.marketCap / (token.holders * 100) || 0.01;
+      return total + (unitsHeld * unitValue);
+    }, 0);
+  }, [species]);
+
   return (
     <div className={cn("rounded-lg bg-card shadow-card", className)}>
       <div className="flex items-center justify-between border-b border-border p-4">
-        <h3 className="font-semibold">Fyre DNA Pre-Assets</h3>
-        <span className="text-sm text-muted-foreground font-mono">
-          {species.length.toLocaleString()} tokens
-        </span>
+        <div>
+          <h3 className="font-semibold">Fyre DNA Pre-Assets</h3>
+          <span className="text-xs text-muted-foreground font-mono">
+            {species.length.toLocaleString()} tokens
+          </span>
+        </div>
+        <div className="text-right">
+          <p className="text-sm text-muted-foreground">Total Value</p>
+          <p className="font-semibold text-success font-mono">${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        </div>
       </div>
       
       {/* Filters Row */}
