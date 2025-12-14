@@ -1,26 +1,22 @@
-import { StatCard } from '@/components/portfolio/StatCard';
-import { SpeciesTokenList } from '@/components/portfolio/SpeciesTokenList';
-import { NFTCollections } from '@/components/portfolio/NFTCollections';
+import { useState } from 'react';
+import { PortfolioPage } from '@/pages/PortfolioPage';
+import { SnapshotsPage } from '@/pages/SnapshotsPage';
 import { SettingsDialog } from '@/components/dialogs/SettingsDialog';
 import { AddonsDialog } from '@/components/dialogs/AddonsDialog';
-import { useSpecies } from '@/hooks/useSpecies';
+import { WalletPopover } from '@/components/WalletPopover';
+import { FooterNav } from '@/components/FooterNav';
 import { useTheme } from '@/hooks/useTheme';
-import { mockPortfolioStats } from '@/lib/mockData';
-import { Coins, Image, TrendingUp, Wallet, Sun, Moon, Settings, Sparkles, ExternalLink, Dna } from 'lucide-react';
+import { Sun, Moon, Settings, Sparkles, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import fcbcWhiteLogo from '@/assets/fcbc_white.png';
 import fcbcDarkLogo from '@/assets/fcbc_dark.png';
 
-const Index = () => {
-  const { data: species = [], isLoading } = useSpecies(100);
-  const { theme, toggleTheme } = useTheme();
+type Page = 'portfolio' | 'snapshots';
 
-  const formatValue = (value: number) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(2)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(2)}K`;
-    return `$${value.toFixed(2)}`;
-  };
+const Index = () => {
+  const { theme, toggleTheme } = useTheme();
+  const [currentPage, setCurrentPage] = useState<Page>('portfolio');
 
   const logo = theme === 'dark' ? fcbcDarkLogo : fcbcWhiteLogo;
 
@@ -30,10 +26,12 @@ const Index = () => {
       <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center gap-2">
           <img src={logo} alt="FCBC" className="h-8 w-8" />
-          <span className="font-semibold text-sm">FCBC</span>
+          <span className="font-semibold text-sm">Fyre App 2</span>
         </div>
 
         <div className="flex items-center gap-1">
+          <WalletPopover />
+          
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -59,43 +57,14 @@ const Index = () => {
       </header>
 
       <main className="p-4 space-y-4 max-w-4xl mx-auto">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard
-            label="Holdings"
-            value={mockPortfolioStats.totalHoldings.toLocaleString()}
-            icon={<Wallet className="h-4 w-4" />}
-            delay={0}
-          />
-          <StatCard
-            label="NFT Pre-Assets"
-            value={mockPortfolioStats.nftPreAssets.toLocaleString()}
-            icon={<Image className="h-4 w-4" />}
-            delay={100}
-          />
-          <StatCard
-            label="Value"
-            value={formatValue(mockPortfolioStats.totalPortfolioValue)}
-            icon={<TrendingUp className="h-4 w-4" />}
-            delay={200}
-          />
-          <StatCard
-            label="DNA Units"
-            value={mockPortfolioStats.totalDNAUnits.toLocaleString()}
-            icon={<Dna className="h-4 w-4" />}
-            delay={300}
-          />
-        </div>
-
-        {/* Fyre DNA Pre-Assets List */}
-        <SpeciesTokenList species={species} isLoading={isLoading} />
-
-        {/* NFT Collections */}
-        <NFTCollections />
+        {currentPage === 'portfolio' ? <PortfolioPage /> : <SnapshotsPage />}
       </main>
 
+      {/* Footer Navigation */}
+      <FooterNav currentPage={currentPage} onPageChange={setCurrentPage} />
+
       {/* Footer */}
-      <footer className="border-t border-border py-3 px-4 text-center text-xs text-muted-foreground">
+      <footer className="border-t border-border py-3 px-4 text-center text-xs text-muted-foreground mb-14">
         <a href="https://fcbc.fun" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
           fcbc.fun
         </a>
