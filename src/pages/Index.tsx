@@ -1,3 +1,6 @@
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { wagmiConfig } from '@/lib/wagmi-config';
 import { useState } from 'react';
 import { PortfolioPage } from '@/pages/PortfolioPage';
 import { SnapshotsPage } from '@/pages/SnapshotsPage';
@@ -10,6 +13,8 @@ import fcbcDarkLogo from '@/assets/fcbc_dark.png';
 
 type Page = 'portfolio' | 'snapshots';
 
+const queryClient = new QueryClient();
+
 const Index = () => {
   const { theme } = useTheme();
   const [currentPage, setCurrentPage] = useState<Page>('portfolio');
@@ -17,6 +22,8 @@ const Index = () => {
   const logo = theme === 'dark' ? fcbcDarkLogo : fcbcWhiteLogo;
 
   return (
+     <WagmiProvider config={wagmiConfig}>
+     <QueryClientProvider client={queryClient}>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border">
