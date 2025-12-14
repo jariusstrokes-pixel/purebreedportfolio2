@@ -1,4 +1,4 @@
-import { Wallet, Copy, ExternalLink, LogOut, Settings, Sparkles, Sun, Moon } from 'lucide-react';
+import { Wallet, Copy, ExternalLink, LogOut, Settings, Sparkles, Sun, Moon, Search, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -19,6 +19,8 @@ export function WalletPopover() {
     ethBalance: '2.45',
     portfolioValue: '$732,463',
     pnl: '+$729,765',
+    voteTickets: 36,
+    freeSearchesRemaining: 5,
   };
 
   const copyAddress = () => {
@@ -73,6 +75,25 @@ export function WalletPopover() {
               <span className="text-muted-foreground">ETH Balance</span>
               <span className="font-mono font-medium">{mockWallet.ethBalance} ETH</span>
             </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-1">
+                <Ticket className="h-3 w-3" />
+                Vote Tickets
+              </span>
+              <span className="font-mono font-medium">{mockWallet.voteTickets}</span>
+            </div>
+          </div>
+
+          {/* Wallet Search */}
+          <div className="pt-2 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Search className="h-3 w-3" />
+                Wallet Search
+              </span>
+              <span className="text-xs text-muted-foreground">{mockWallet.freeSearchesRemaining}/5 free today</span>
+            </div>
+            <p className="text-xs text-muted-foreground mb-2">1 Vote Ticket per search after free limit</p>
           </div>
 
           {/* Quick Actions */}

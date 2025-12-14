@@ -97,7 +97,7 @@ export function SnapshotsPage() {
       <div className="rounded-lg bg-card p-6 shadow-card">
         <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
           <Clock className="h-4 w-4" />
-          <span className="text-sm font-medium">NEXT SNAPSHOT IN</span>
+          <span className="text-sm font-medium">EPOCH 1 ENDS</span>
         </div>
         <div className="flex justify-center gap-3">
           {[
@@ -109,6 +109,20 @@ export function SnapshotsPage() {
             <div key={i} className="flex flex-col items-center bg-muted rounded-lg p-3 min-w-[70px]">
               <span className="text-2xl font-bold font-mono">{item.value}</span>
               <span className="text-xs text-muted-foreground">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* My Custody Stats */}
+      <div className="rounded-lg bg-card p-4 shadow-card">
+        <h2 className="font-semibold mb-3">My Custody Stats</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {custodiedAssets.filter(a => a.isMine).map((asset, i) => (
+            <div key={i} className="bg-muted/50 rounded-lg p-3 text-center">
+              <p className="text-xs text-muted-foreground truncate">{asset.name}</p>
+              <p className="font-mono text-sm font-bold">${asset.symbol}</p>
+              <p className="text-xs text-success">{asset.units}</p>
             </div>
           ))}
         </div>

@@ -2,7 +2,7 @@ import { StatCard } from '@/components/portfolio/StatCard';
 import { SpeciesTokenList } from '@/components/portfolio/SpeciesTokenList';
 import { NFTCollections } from '@/components/portfolio/NFTCollections';
 import { useSpecies } from '@/hooks/useSpecies';
-import { Wallet, TrendingUp, Coins, Dna, ShoppingCart, Layers } from 'lucide-react';
+import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuickBuyDialog } from '@/components/dialogs/QuickBuyDialog';
 import { MultiBuyDialog } from '@/components/dialogs/MultiBuyDialog';
@@ -23,14 +23,15 @@ export function PortfolioPage() {
         <StatCard
           label="Total Portfolio Value"
           value="$732,463"
+          subValue="+$729,765"
+          subValueClassName="text-success"
           icon={<Wallet className="h-4 w-4" />}
           delay={0}
         />
         <StatCard
-          label="Total PnL"
-          value="+$729,765"
-          icon={<TrendingUp className="h-4 w-4" />}
-          valueClassName="text-success"
+          label="$FCBCC Creator Coin"
+          value="2,450"
+          icon={<CircleDollarSign className="h-4 w-4" />}
           delay={100}
         />
         <StatCard
