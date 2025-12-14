@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Box, Lock, Unlock, Clock, Info, Check } from 'lucide-react';
+import { Box, Lock, Unlock, Clock, Info, Check, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
@@ -43,11 +44,20 @@ const custodiedAssets = [
   { name: 'Thunder Wolf', symbol: 'TWLF', units: '9.3M', custodian: '0x1234...5678', isMine: true },
 ];
 
+const epoch0Snaps = ['$FCBC121', '$FCBC19', '$FCBC56', '$FCBC2'];
+
+const myCustodiedSpecies = [
+  { symbol: 'FDRG', name: 'Fyre Dragon', units: '12.5M', rank: '#1' },
+  { symbol: 'SSRP', name: 'Storm Serpent', units: '15.1M', rank: '#1' },
+  { symbol: 'TWLF', name: 'Thunder Wolf', units: '9.3M', rank: '#1' },
+];
+
 export function SnapshotsPage() {
   const [boxes, setBoxes] = useState<MysteryBox[]>(initialBoxes);
   const [selectedBox, setSelectedBox] = useState<MysteryBox | null>(null);
   const [showMyHoldings, setShowMyHoldings] = useState(false);
   const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 39 });
+  const [addressSearch, setAddressSearch] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -93,13 +103,24 @@ export function SnapshotsPage() {
         <p className="text-muted-foreground">Monitor Snapshot Events and earn custodian rights.</p>
       </div>
 
+      {/* Address Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search wallet address..."
+          value={addressSearch}
+          onChange={(e) => setAddressSearch(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       {/* Countdown Timer */}
       <div className="rounded-lg bg-card p-6 shadow-card">
         <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
           <Clock className="h-4 w-4" />
           <span className="text-sm font-medium">EPOCH 1 ENDS</span>
         </div>
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-3 mb-4">
           {[
             { value: countdown.days, label: 'DAYS' },
             { value: countdown.hours, label: 'HOURS' },
@@ -112,17 +133,29 @@ export function SnapshotsPage() {
             </div>
           ))}
         </div>
+        {/* Epoch 0 Snaps */}
+        <div className="flex flex-wrap justify-center gap-2">
+          <span className="text-xs text-muted-foreground mr-1">Epoch 0:</span>
+          {epoch0Snaps.map((snap) => (
+            <Badge key={snap} variant="secondary" className="text-xs font-mono">
+              {snap}
+            </Badge>
+          ))}
+        </div>
       </div>
 
-      {/* My Custody Stats */}
+      {/* Pre-Snapshots Leading */}
       <div className="rounded-lg bg-card p-4 shadow-card">
-        <h2 className="font-semibold mb-3">My Custody Stats</h2>
+        <h2 className="font-semibold mb-3">Pre-Snapshots I'm Leading</h2>
         <div className="grid grid-cols-3 gap-2">
-          {custodiedAssets.filter(a => a.isMine).map((asset, i) => (
-            <div key={i} className="bg-muted/50 rounded-lg p-3 text-center">
-              <p className="text-xs text-muted-foreground truncate">{asset.name}</p>
-              <p className="font-mono text-sm font-bold">${asset.symbol}</p>
-              <p className="text-xs text-success">{asset.units}</p>
+          {myCustodiedSpecies.map((species, i) => (
+            <div key={i} className="bg-muted/50 rounded-lg p-3 text-center border border-success/20">
+              <p className="text-xs text-muted-foreground truncate">{species.name}</p>
+              <p className="font-mono text-sm font-bold">${species.symbol}</p>
+              <div className="flex items-center justify-center gap-1 mt-1">
+                <Badge variant="outline" className="text-[10px] px-1 py-0 text-success border-success/30">{species.rank}</Badge>
+                <span className="text-xs text-muted-foreground">{species.units}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -194,15 +227,6 @@ export function SnapshotsPage() {
             </li>
           </ul>
         </div>
-        <div className="pt-2 border-t border-border">
-          <h3 className="font-medium text-sm mb-2">Why Snapshots Matter</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-muted/50 rounded p-2">Determine Custodian assignment</div>
-            <div className="bg-muted/50 rounded p-2">Affect Purebreed eligibility</div>
-            <div className="bg-muted/50 rounded p-2">Lead to leaderboard updates</div>
-            <div className="bg-muted/50 rounded p-2">Influence Airdrop Multipliers</div>
-          </div>
-        </div>
       </div>
 
       {/* Custodied Assets */}
@@ -220,6 +244,20 @@ export function SnapshotsPage() {
             </Label>
           </div>
         </div>
+        
+        {/* My Custodied Species Cards */}
+        <div className="p-4 border-b border-border">
+          <p className="text-xs text-muted-foreground mb-2">My Custodied Species</p>
+          <div className="grid grid-cols-3 gap-2">
+            {myCustodiedSpecies.map((species, i) => (
+              <div key={i} className="bg-success/5 rounded-lg p-2 text-center border border-success/20">
+                <p className="font-mono text-xs font-bold text-success">${species.symbol}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{species.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
