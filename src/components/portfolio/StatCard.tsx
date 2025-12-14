@@ -9,9 +9,11 @@ interface StatCardProps {
   className?: string;
   delay?: number;
   valueClassName?: string;
+  subValue?: string;
+  subValueClassName?: string;
 }
 
-export function StatCard({ label, value, change, icon, className, delay = 0, valueClassName }: StatCardProps) {
+export function StatCard({ label, value, change, icon, className, delay = 0, valueClassName, subValue, subValueClassName }: StatCardProps) {
   const isPositive = change !== undefined && change >= 0;
   
   return (
@@ -29,6 +31,9 @@ export function StatCard({ label, value, change, icon, className, delay = 0, val
             <p className="text-xs font-medium">{label}</p>
           </div>
           <p className={cn("text-xl font-bold font-mono", valueClassName)}>{value}</p>
+          {subValue && (
+            <p className={cn("text-xs font-mono", subValueClassName)}>{subValue}</p>
+          )}
           {change !== undefined && (
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
