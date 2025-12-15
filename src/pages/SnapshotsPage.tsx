@@ -205,7 +205,7 @@ Snapshots and Custody</h1>
 
       {/* Pre-Snapshots Leading */}
       <div className="rounded-lg bg-card p-4 shadow-card">
-        <h2 className="font-semibold mb-3">Pre-Snapshots I'm Leading</h2>
+        <h2 className="font-semibold mb-3">     Leading Pre-Snapshots        </h2>
         <div className="grid grid-cols-2 gap-2">
           {leadingPreSnapshots.map((species, i) => <div key={i} className="bg-muted/50 rounded-lg p-3 border border-success/20">
               <p className="text-xs text-muted-foreground truncate">{species.name}</p>
