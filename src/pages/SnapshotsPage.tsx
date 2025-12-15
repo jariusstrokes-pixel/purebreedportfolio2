@@ -6,79 +6,141 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 interface MysteryBox {
   id: number;
   status: 'blind' | 'revealed' | 'empty';
   hint?: string;
 }
-
-const hints = [
-  "This species loves the deep ocean...",
-  "Look for creatures with scales of gold...",
-  "Ancient DNA from the forest realm...",
-  "Wings that shimmer in moonlight...",
-  "Born from volcanic ash...",
-  "The rarest of the aquatic beings...",
-];
-
-const initialBoxes: MysteryBox[] = Array.from({ length: 10 }, (_, i) => ({
+const hints = ["This species loves the deep ocean...", "Look for creatures with scales of gold...", "Ancient DNA from the forest realm...", "Wings that shimmer in moonlight...", "Born from volcanic ash...", "The rarest of the aquatic beings..."];
+const initialBoxes: MysteryBox[] = Array.from({
+  length: 10
+}, (_, i) => ({
   id: i + 1,
   status: i < 6 ? 'blind' : 'empty',
-  hint: i < 6 ? hints[i % hints.length] : undefined,
+  hint: i < 6 ? hints[i % hints.length] : undefined
 }));
-
-const custodiedAssets = [
-  { name: 'Fyre Dragon', symbol: 'FDRG', units: '12.5M', custodian: '0x1234...5678', isMine: true },
-  { name: 'Phoenix Ember', symbol: 'PEMB', units: '8.2M', custodian: '0x8765...4321', isMine: false },
-  { name: 'Storm Serpent', symbol: 'SSRP', units: '15.1M', custodian: '0x1234...5678', isMine: true },
-  { name: 'Crystal Whale', symbol: 'CWHL', units: '6.7M', custodian: '0x9999...1111', isMine: false },
-  { name: 'Thunder Wolf', symbol: 'TWLF', units: '9.3M', custodian: '0x1234...5678', isMine: true },
-];
-
+const custodiedAssets = [{
+  name: 'Fyre Dragon',
+  symbol: 'FDRG',
+  units: '12.5M',
+  custodian: '0x1234...5678',
+  isMine: true
+}, {
+  name: 'Phoenix Ember',
+  symbol: 'PEMB',
+  units: '8.2M',
+  custodian: '0x8765...4321',
+  isMine: false
+}, {
+  name: 'Storm Serpent',
+  symbol: 'SSRP',
+  units: '15.1M',
+  custodian: '0x1234...5678',
+  isMine: true
+}, {
+  name: 'Crystal Whale',
+  symbol: 'CWHL',
+  units: '6.7M',
+  custodian: '0x9999...1111',
+  isMine: false
+}, {
+  name: 'Thunder Wolf',
+  symbol: 'TWLF',
+  units: '9.3M',
+  custodian: '0x1234...5678',
+  isMine: true
+}];
 const epoch0Snaps = ['$FCBC121', '$FCBC19', '$FCBC56', '$FCBC2'];
-
-const leadingPreSnapshots = [
-  { id: '#122', symbol: 'FCBC122', name: 'Syrian Wild Ass', units: '12.5M', rank: '#1' },
-  { id: '#38', symbol: 'FCBC38', name: 'Golden Eagle', units: '8.2M', rank: '#1' },
-  { id: '#12', symbol: 'FCBC12', name: 'Snow Leopard', units: '15.1M', rank: '#1' },
-  { id: '#200', symbol: 'FCBC200', name: 'Blue Whale', units: '9.3M', rank: '#1' },
-];
-
-const myCustodiedSpecies = [
-  { symbol: 'FDRG', name: 'Fyre Dragon', units: '12.5M', rank: '#1' },
-  { symbol: 'SSRP', name: 'Storm Serpent', units: '15.1M', rank: '#1' },
-  { symbol: 'TWLF', name: 'Thunder Wolf', units: '9.3M', rank: '#1' },
-];
-
+const leadingPreSnapshots = [{
+  id: '#122',
+  symbol: 'FCBC122',
+  name: 'Syrian Wild Ass',
+  units: '12.5M',
+  rank: '#1'
+}, {
+  id: '#38',
+  symbol: 'FCBC38',
+  name: 'Golden Eagle',
+  units: '8.2M',
+  rank: '#1'
+}, {
+  id: '#12',
+  symbol: 'FCBC12',
+  name: 'Snow Leopard',
+  units: '15.1M',
+  rank: '#1'
+}, {
+  id: '#200',
+  symbol: 'FCBC200',
+  name: 'Blue Whale',
+  units: '9.3M',
+  rank: '#1'
+}];
+const myCustodiedSpecies = [{
+  symbol: 'FDRG',
+  name: 'Fyre Dragon',
+  units: '12.5M',
+  rank: '#1'
+}, {
+  symbol: 'SSRP',
+  name: 'Storm Serpent',
+  units: '15.1M',
+  rank: '#1'
+}, {
+  symbol: 'TWLF',
+  name: 'Thunder Wolf',
+  units: '9.3M',
+  rank: '#1'
+}];
 export function SnapshotsPage() {
   const [boxes, setBoxes] = useState<MysteryBox[]>(initialBoxes);
   const [selectedBox, setSelectedBox] = useState<MysteryBox | null>(null);
   const [showMyHoldings, setShowMyHoldings] = useState(false);
-  const [countdown, setCountdown] = useState({ days: 2, hours: 14, minutes: 30, seconds: 39 });
-
+  const [countdown, setCountdown] = useState({
+    days: 2,
+    hours: 14,
+    minutes: 30,
+    seconds: 39
+  });
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
-        let { days, hours, minutes, seconds } = prev;
+        let {
+          days,
+          hours,
+          minutes,
+          seconds
+        } = prev;
         seconds--;
-        if (seconds < 0) { seconds = 59; minutes--; }
-        if (minutes < 0) { minutes = 59; hours--; }
-        if (hours < 0) { hours = 23; days--; }
-        if (days < 0) { days = 6; hours = 23; minutes = 59; seconds = 59; }
-        return { days, hours, minutes, seconds };
+        if (seconds < 0) {
+          seconds = 59;
+          minutes--;
+        }
+        if (minutes < 0) {
+          minutes = 59;
+          hours--;
+        }
+        if (hours < 0) {
+          hours = 23;
+          days--;
+        }
+        if (days < 0) {
+          days = 6;
+          hours = 23;
+          minutes = 59;
+          seconds = 59;
+        }
+        return {
+          days,
+          hours,
+          minutes,
+          seconds
+        };
       });
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
   const handleBoxClick = (box: MysteryBox) => {
     if (box.status === 'empty') {
       toast.info('This box is empty. Check back next snapshot!');
@@ -86,22 +148,17 @@ export function SnapshotsPage() {
     }
     setSelectedBox(box);
   };
-
   const revealHint = () => {
     if (!selectedBox) return;
-    setBoxes(prev => prev.map(b => 
-      b.id === selectedBox.id ? { ...b, status: 'revealed' as const } : b
-    ));
+    setBoxes(prev => prev.map(b => b.id === selectedBox.id ? {
+      ...b,
+      status: 'revealed' as const
+    } : b));
     toast.success(`Hint revealed for $1! "${selectedBox.hint}"`);
     setSelectedBox(null);
   };
-
-  const filteredAssets = showMyHoldings 
-    ? custodiedAssets.filter(a => a.isMine) 
-    : custodiedAssets;
-
-  return (
-    <div className="space-y-6 pb-20">
+  const filteredAssets = showMyHoldings ? custodiedAssets.filter(a => a.isMine) : custodiedAssets;
+  return <div className="space-y-6 pb-20">
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold">FCBCC Custody and Snapshots</h1>
@@ -113,29 +170,32 @@ export function SnapshotsPage() {
       <div className="rounded-lg bg-card p-6 shadow-card">
         <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
           <Clock className="h-4 w-4" />
-          <span className="text-sm font-medium">EPOCH 1 ENDS</span>
+          <span className="text-sm font-medium">EPOCH 1 ENDS IN </span>
         </div>
         <div className="flex justify-center gap-3 mb-4">
-          {[
-            { value: countdown.days, label: 'DAYS' },
-            { value: countdown.hours, label: 'HOURS' },
-            { value: countdown.minutes, label: 'MIN' },
-            { value: countdown.seconds, label: 'SEC' },
-          ].map((item, i) => (
-            <div key={i} className="flex flex-col items-center bg-muted rounded-lg p-3 min-w-[70px]">
+          {[{
+          value: countdown.days,
+          label: 'DAYS'
+        }, {
+          value: countdown.hours,
+          label: 'HOURS'
+        }, {
+          value: countdown.minutes,
+          label: 'MIN'
+        }, {
+          value: countdown.seconds,
+          label: 'SEC'
+        }].map((item, i) => <div key={i} className="flex flex-col items-center bg-muted rounded-lg p-3 min-w-[70px]">
               <span className="text-2xl font-bold font-mono">{item.value}</span>
               <span className="text-xs text-muted-foreground">{item.label}</span>
-            </div>
-          ))}
+            </div>)}
         </div>
         {/* Epoch 0 Snaps */}
         <div className="flex flex-wrap justify-center gap-2">
-          <span className="text-xs text-muted-foreground mr-1">Epoch 0 snaps.</span>
-          {epoch0Snaps.map((snap) => (
-            <Badge key={snap} variant="secondary" className="text-xs font-mono">
+          <span className="text-xs text-muted-foreground mr-1">Epoch 0 snaps:</span>
+          {epoch0Snaps.map(snap => <Badge key={snap} variant="secondary" className="text-xs font-mono">
               {snap}
-            </Badge>
-          ))}
+            </Badge>)}
         </div>
       </div>
 
@@ -143,16 +203,14 @@ export function SnapshotsPage() {
       <div className="rounded-lg bg-card p-4 shadow-card">
         <h2 className="font-semibold mb-3">Pre-Snapshots I'm Leading</h2>
         <div className="grid grid-cols-2 gap-2">
-          {leadingPreSnapshots.map((species, i) => (
-            <div key={i} className="bg-muted/50 rounded-lg p-3 border border-success/20">
+          {leadingPreSnapshots.map((species, i) => <div key={i} className="bg-muted/50 rounded-lg p-3 border border-success/20">
               <p className="text-xs text-muted-foreground truncate">{species.name}</p>
               <p className="font-mono text-sm font-bold">${species.symbol}</p>
               <div className="flex items-center justify-between mt-1">
                 <Badge variant="outline" className="text-[10px] px-1 py-0 text-success border-success/30">{species.rank}</Badge>
                 <span className="text-xs text-muted-foreground">{species.units}</span>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </div>
 
@@ -163,35 +221,18 @@ export function SnapshotsPage() {
           <span className="text-xs text-muted-foreground">Tap to reveal hints ($1 each)</span>
         </div>
         <div className="grid grid-cols-5 gap-3">
-          {boxes.map((box) => (
-            <button
-              key={box.id}
-              onClick={() => handleBoxClick(box)}
-              className={cn(
-                "aspect-square rounded-lg flex flex-col items-center justify-center gap-1 transition-all",
-                box.status === 'empty' && "bg-muted/30 border border-dashed border-border cursor-not-allowed",
-                box.status === 'blind' && "bg-primary/10 border border-primary/30 hover:bg-primary/20 hover:border-primary/50",
-                box.status === 'revealed' && "bg-success/10 border border-success/30"
-              )}
-            >
-              {box.status === 'empty' ? (
-                <span className="text-muted-foreground text-xs">Empty</span>
-              ) : box.status === 'revealed' ? (
-                <>
+          {boxes.map(box => <button key={box.id} onClick={() => handleBoxClick(box)} className={cn("aspect-square rounded-lg flex flex-col items-center justify-center gap-1 transition-all", box.status === 'empty' && "bg-muted/30 border border-dashed border-border cursor-not-allowed", box.status === 'blind' && "bg-primary/10 border border-primary/30 hover:bg-primary/20 hover:border-primary/50", box.status === 'revealed' && "bg-success/10 border border-success/30")}>
+              {box.status === 'empty' ? <span className="text-muted-foreground text-xs">Empty</span> : box.status === 'revealed' ? <>
                   <Unlock className="h-5 w-5 text-success" />
                   <span className="text-[10px] text-success">Revealed</span>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <Badge className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground">
                     Blind
                   </Badge>
                   <Box className="h-6 w-6 text-primary" />
                   <span className="text-[10px] text-muted-foreground">Box #{box.id}</span>
-                </>
-              )}
-            </button>
-          ))}
+                </>}
+            </button>)}
         </div>
       </div>
 
@@ -229,11 +270,7 @@ export function SnapshotsPage() {
         <div className="flex items-center justify-between border-b border-border p-4">
           <h2 className="font-semibold">Custodied Assets</h2>
           <div className="flex items-center gap-2">
-            <Switch
-              id="my-holdings"
-              checked={showMyHoldings}
-              onCheckedChange={setShowMyHoldings}
-            />
+            <Switch id="my-holdings" checked={showMyHoldings} onCheckedChange={setShowMyHoldings} />
             <Label htmlFor="my-holdings" className="text-sm cursor-pointer">
               My Holdings Only
             </Label>
@@ -244,12 +281,10 @@ export function SnapshotsPage() {
         <div className="p-4 border-b border-border">
           <p className="text-xs text-muted-foreground mb-2">My Custodied Species</p>
           <div className="grid grid-cols-3 gap-2">
-            {myCustodiedSpecies.map((species, i) => (
-              <div key={i} className="bg-success/5 rounded-lg p-2 text-center border border-success/20">
+            {myCustodiedSpecies.map((species, i) => <div key={i} className="bg-success/5 rounded-lg p-2 text-center border border-success/20">
                 <p className="font-mono text-xs font-bold text-success">${species.symbol}</p>
                 <p className="text-[10px] text-muted-foreground truncate">{species.name}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
@@ -264,21 +299,16 @@ export function SnapshotsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredAssets.map((asset, i) => (
-                <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+              {filteredAssets.map((asset, i) => <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
                   <td className="p-4 font-medium">{asset.name}</td>
                   <td className="p-4 font-mono text-muted-foreground">${asset.symbol}</td>
                   <td className="p-4 text-right font-mono">{asset.units}</td>
                   <td className="p-4 text-right">
-                    <span className={cn(
-                      "font-mono text-xs px-2 py-1 rounded",
-                      asset.isMine ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                    )}>
+                    <span className={cn("font-mono text-xs px-2 py-1 rounded", asset.isMine ? "bg-success/10 text-success" : "bg-muted text-muted-foreground")}>
                       {asset.isMine ? 'You' : asset.custodian}
                     </span>
                   </td>
-                </tr>
-              ))}
+                </tr>)}
             </tbody>
           </table>
         </div>
@@ -308,6 +338,5 @@ export function SnapshotsPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 }
