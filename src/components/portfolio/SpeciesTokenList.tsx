@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Species } from '@/hooks/useSpecies';
 import { cn } from '@/lib/utils';
-import { Search, ChevronDown, ArrowUpDown, Filter } from 'lucide-react';
+import { Search, ChevronDown, ArrowUpDown, Filter, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -20,39 +21,50 @@ interface SpeciesTokenListProps {
   className?: string;
 }
 
-type SortField = 'name' | 'symbol' | 'marketCap' | 'holders' | 'rarity';
+type SortField2 = 'name' | 'symbol' | 'units' | 'value' | 'marketCap' | 'holders';
 type SortOrder = 'asc' | 'desc';
 
-const rarityOrder: Record<string, number> = {
-  'Legendary': 5,
-  'Epic': 4,
-  'Rare': 3,
-  'Uncommon': 2,
-  'Common': 1,
-};
-
-type SortField2 = 'name' | 'symbol' | 'units' | 'value' | 'marketCap' | 'holders';
+// 10 dummy tokens with pre/post snapshot and custodian status
+const dummyTokens = [
+  { id: '1', name: 'Javan Rhinoceros', ticker: '$FCBC121', units: 45000, value: 12500, mcap: '$2.4M', holders: 234, isPreSnapshot: true, isCustodian: true },
+  { id: '2', name: 'Sumatran Tiger', ticker: '$FCBC45', units: 32000, value: 8200, mcap: '$1.8M', holders: 189, isPreSnapshot: true, isCustodian: false },
+  { id: '3', name: 'Amur Leopard', ticker: '$FCBC203', units: 28000, value: 6700, mcap: '$1.5M', holders: 156, isPreSnapshot: false, isCustodian: true },
+  { id: '4', name: 'Mountain Gorilla', ticker: '$FCBC89', units: 51000, value: 15100, mcap: '$1.2M', holders: 278, isPreSnapshot: true, isCustodian: false },
+  { id: '5', name: 'Vaquita Porpoise', ticker: '$FCBC156', units: 19000, value: 4500, mcap: '$980K', holders: 98, isPreSnapshot: false, isCustodian: false },
+  { id: '6', name: 'Hawksbill Turtle', ticker: '$FCBC312', units: 67000, value: 22300, mcap: '$850K', holders: 312, isPreSnapshot: true, isCustodian: true },
+  { id: '7', name: 'Saola', ticker: '$FCBC78', units: 23000, value: 5800, mcap: '$720K', holders: 145, isPreSnapshot: false, isCustodian: false },
+  { id: '8', name: 'Cross River Gorilla', ticker: '$FCBC234', units: 38000, value: 9300, mcap: '$650K', holders: 201, isPreSnapshot: true, isCustodian: false },
+  { id: '9', name: 'Yangtze Finless Porpoise', ticker: '$FCBC167', units: 41000, value: 11200, mcap: '$580K', holders: 167, isPreSnapshot: false, isCustodian: true },
+  { id: '10', name: 'Black Rhino', ticker: '$FCBC99', units: 29000, value: 7100, mcap: '$420K', holders: 134, isPreSnapshot: true, isCustodian: false },
+];
 
 export function SpeciesTokenList({ species, isLoading, className }: SpeciesTokenListProps) {
   const [search, setSearch] = useState('');
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [sortField, setSortField] = useState<SortField2>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [preSnapshot, setPreSnapshot] = useState(true);
 
-  const uniqueStatuses = useMemo(() => {
-    const statuses = new Set(species.map(s => s.status));
-    return Array.from(statuses).filter(Boolean);
-  }, [species]);
+  // Calculate total value - must be before any conditional returns
+  const totalValue = useMemo(() => {
+    return dummyTokens.reduce((total, token) => total + token.value, 0);
+  }, []);
 
-  const filteredAndSortedSpecies = useMemo(() => {
-    let filtered = species.filter(
-      (s) =>
-        (s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.symbol.toLowerCase().includes(search.toLowerCase())) &&
-        (statusFilter === 'all' || s.status === statusFilter)
+  const filteredTokens = useMemo(() => {
+    let filtered = dummyTokens.filter(
+      (t) =>
+        (t.name.toLowerCase().includes(search.toLowerCase()) ||
+        t.ticker.toLowerCase().includes(search.toLowerCase()))
     );
+
+    if (statusFilter === 'pre') {
+      filtered = filtered.filter(t => t.isPreSnapshot);
+    } else if (statusFilter === 'post') {
+      filtered = filtered.filter(t => !t.isPreSnapshot);
+    } else if (statusFilter === 'custodian') {
+      filtered = filtered.filter(t => t.isCustodian);
+    }
 
     filtered.sort((a, b) => {
       let comparison = 0;
@@ -61,56 +73,35 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
           comparison = a.name.localeCompare(b.name);
           break;
         case 'symbol':
-          comparison = a.symbol.localeCompare(b.symbol);
+          comparison = a.ticker.localeCompare(b.ticker);
+          break;
+        case 'units':
+          comparison = a.units - b.units;
+          break;
+        case 'value':
+          comparison = a.value - b.value;
           break;
         case 'marketCap':
-          comparison = a.marketCap - b.marketCap;
+          comparison = parseFloat(a.mcap.replace(/[$KM]/g, '')) - parseFloat(b.mcap.replace(/[$KM]/g, ''));
           break;
         case 'holders':
           comparison = a.holders - b.holders;
-          break;
-        case 'units':
-          comparison = a.holders - b.holders; // Placeholder sort
-          break;
-        case 'value':
-          comparison = a.marketCap - b.marketCap; // Placeholder sort
           break;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
     return filtered;
-  }, [species, search, sortField, sortOrder, statusFilter]);
+  }, [search, sortField, sortOrder, statusFilter]);
 
-  const displayedSpecies = filteredAndSortedSpecies.slice(0, visibleCount);
-
-  // Calculate total value - must be before any conditional returns
-  const totalValue = useMemo(() => {
-    return species.reduce((total, token) => {
-      const hash = token.tokenAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const unitsHeld = (hash % 50000) + 1000;
-      const unitValue = token.marketCap / (token.holders * 100) || 0.01;
-      return total + (unitsHeld * unitValue);
-    }, 0);
-  }, [species]);
+  const displayedTokens = filteredTokens.slice(0, visibleCount);
 
   const toggleSort = (field: SortField2) => {
     if (sortField === field) {
       setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortField(field as SortField2);
+      setSortField(field);
       setSortOrder('asc');
-    }
-  };
-
-  const getRarityColor = (rarity: string) => {
-    const r = rarity.split(' ')[0];
-    switch (r) {
-      case 'Legendary': return 'text-warning';
-      case 'Epic': return 'text-purple-400';
-      case 'Rare': return 'text-primary';
-      case 'Uncommon': return 'text-success';
-      default: return 'text-muted-foreground';
     }
   };
 
@@ -118,7 +109,7 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
     return (
       <div className={cn("rounded-lg bg-card shadow-card p-8", className)}>
         <div className="flex items-center justify-center">
-          <div className="animate-pulse text-muted-foreground">Loading Fyre DNA data...</div>
+          <div className="animate-pulse text-muted-foreground">Loading Fyre PureBreeds data...</div>
         </div>
       </div>
     );
@@ -128,15 +119,30 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
     <div className={cn("rounded-lg bg-card shadow-card", className)}>
       <div className="flex items-center justify-between border-b border-border p-4">
         <div>
-          <h3 className="font-semibold">Fyre DNA Pre-Assets</h3>
+          <a 
+            href="https://zora.co" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 group"
+          >
+            <h3 className="font-semibold group-hover:text-primary transition-colors">Fyre PureBreeds Genomes</h3>
+            <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </a>
           <span className="text-xs text-muted-foreground font-mono">
-            {species.length.toLocaleString()} tokens
+            10 tokens
           </span>
         </div>
         <div className="text-right">
           <p className="text-sm text-muted-foreground">Total Value</p>
-          <p className="font-semibold text-success font-mono">${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="font-semibold text-success font-mono">${totalValue.toLocaleString()}</p>
         </div>
+      </div>
+      
+      {/* Legend */}
+      <div className="px-4 pt-3 flex flex-wrap gap-2 text-xs">
+        <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30">Pre-Snapshot</Badge>
+        <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30">Post-Snapshot</Badge>
+        <Badge variant="outline" className="bg-success/10 text-success border-success/30">Custodian</Badge>
       </div>
       
       {/* Filters Row */}
@@ -158,10 +164,10 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {uniqueStatuses.map(status => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
-              ))}
+              <SelectItem value="all">All Tokens</SelectItem>
+              <SelectItem value="pre">Pre-Snapshot</SelectItem>
+              <SelectItem value="post">Post-Snapshot</SelectItem>
+              <SelectItem value="custodian">My Custodian</SelectItem>
             </SelectContent>
           </Select>
 
@@ -231,58 +237,63 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
             </tr>
           </thead>
           <tbody>
-            {displayedSpecies.map((token, idx) => {
-              // Generate stable dummy data based on token address hash
-              const hash = token.tokenAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-              const unitsHeld = (hash % 50000) + 1000;
-              const unitValue = token.marketCap / (token.holders * 100) || 0.01;
-              const value = unitsHeld * unitValue;
-              return (
-                <tr
-                  key={token.tokenAddress}
-                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                >
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground overflow-hidden">
-                        {token.image ? (
-                          <img src={token.image} alt={token.name} className="h-full w-full object-cover" />
-                        ) : (
-                          token.symbol.slice(0, 2)
+            {displayedTokens.map((token) => (
+              <tr
+                key={token.id}
+                className={cn(
+                  "border-b border-border/50 hover:bg-muted/30 transition-colors",
+                  token.isPreSnapshot ? "bg-amber-500/5" : "bg-blue-500/5",
+                  token.isCustodian && "ring-1 ring-inset ring-success/30"
+                )}
+              >
+                <td className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground overflow-hidden",
+                      token.isCustodian ? "bg-gradient-to-br from-success to-success/70" : "bg-gradient-primary"
+                    )}>
+                      {token.ticker.replace('$FCBC', '').slice(0, 3)}
+                    </div>
+                    <div>
+                      <p className="font-medium">{token.name}</p>
+                      <div className="flex gap-1 mt-0.5">
+                        {token.isCustodian && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0 bg-success/10 text-success border-success/30">
+                            Custodian
+                          </Badge>
                         )}
                       </div>
-                      <p className="font-medium">{token.name}</p>
                     </div>
-                  </td>
-                  <td className="p-4 font-mono text-muted-foreground">
-                    ${token.symbol}
-                  </td>
-                  <td className="p-4 text-right font-mono">
-                    {unitsHeld.toLocaleString()}
-                  </td>
-                  <td className="p-4 text-right font-mono text-success">
-                    ${value.toFixed(2)}
-                  </td>
-                  <td className="p-4 text-right font-mono text-muted-foreground">
-                    {token.marketCapFormatted}
-                  </td>
-                  <td className="p-4 text-right font-mono">
-                    {token.holders}
-                  </td>
-                </tr>
-              );
-            })}
+                  </div>
+                </td>
+                <td className="p-4 font-mono text-muted-foreground">
+                  {token.ticker}
+                </td>
+                <td className="p-4 text-right font-mono">
+                  {token.units.toLocaleString()}
+                </td>
+                <td className="p-4 text-right font-mono text-success">
+                  ${token.value.toLocaleString()}
+                </td>
+                <td className="p-4 text-right font-mono text-muted-foreground">
+                  {token.mcap}
+                </td>
+                <td className="p-4 text-right font-mono">
+                  {token.holders}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {visibleCount < filteredAndSortedSpecies.length && (
+      {visibleCount < filteredTokens.length && (
         <div className="p-4 border-t border-border">
           <button
-            onClick={() => setVisibleCount((c) => c + 20)}
+            onClick={() => setVisibleCount((c) => c + 10)}
             className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <span>Load more ({filteredAndSortedSpecies.length - visibleCount} remaining)</span>
+            <span>Load more ({filteredTokens.length - visibleCount} remaining)</span>
             <ChevronDown className="h-4 w-4" />
           </button>
         </div>

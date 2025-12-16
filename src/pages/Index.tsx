@@ -4,6 +4,7 @@ import { wagmiConfig } from '@/lib/wagmi-config';
 import { useState } from 'react';
 import { PortfolioPage } from '@/pages/PortfolioPage';
 import { SnapshotsPage } from '@/pages/SnapshotsPage';
+import { LandingPage } from '@/pages/LandingPage';
 import { WalletPopover } from '@/components/WalletPopover';
 import { FooterNav } from '@/components/FooterNav';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,15 +12,26 @@ import { useTheme } from '@/hooks/useTheme';
 import fcbcWhiteLogo from '@/assets/fcbc_white.png';
 import fcbcDarkLogo from '@/assets/fcbc_dark.png';
 
-type Page = 'portfolio' | 'snapshots';
+type Page = 'snapshots' | 'portfolio';
 
 const queryClient = new QueryClient();
 
 const Index = () => {
   const { theme } = useTheme();
-  const [currentPage, setCurrentPage] = useState<Page>('portfolio');
+  const [isConnected, setIsConnected] = useState(false);
+  const [currentPage, setCurrentPage] = useState<Page>('snapshots');
 
   const logo = theme === 'dark' ? fcbcDarkLogo : fcbcWhiteLogo;
+
+  if (!isConnected) {
+    return (
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <LandingPage onConnect={() => setIsConnected(true)} />
+        </QueryClientProvider>
+      </WagmiProvider>
+    );
+  }
 
   return (
     <WagmiProvider config={wagmiConfig}>
@@ -38,7 +50,7 @@ const Index = () => {
           </header>
 
           <main className="p-4 space-y-4 max-w-4xl mx-auto">
-            {currentPage === 'portfolio' ? <PortfolioPage /> : <SnapshotsPage />}
+            {currentPage === 'snapshots' ? <SnapshotsPage /> : <PortfolioPage />}
           </main>
 
           {/* Footer Navigation */}

@@ -5,11 +5,12 @@ import { ExternalLink } from 'lucide-react';
 interface NFTCollection {
   id: string;
   name: string;
-  category: 'oocytes' | 'enzymes' | 'purebreeds';
+  category: 'oocytes' | 'enzymes' | 'purebreeds' | 'hybrids';
   totalItems: number;
   floorPrice: number;
   totalVolume: number;
   myHoldings: number;
+  myHoldingsValue: number;
   status: 'active' | 'coming-soon';
   openseaUrl?: string;
 }
@@ -23,8 +24,9 @@ const collections: NFTCollection[] = [
     floorPrice: 0.65,
     totalVolume: 332.8,
     myHoldings: 12,
+    myHoldingsValue: 7.8,
     status: 'active',
-    openseaUrl: 'https://opensea.io/collection/fcbrwa-enzyme',
+    openseaUrl: 'https://opensea.io/collection/fcbrwa-oocytes',
   },
   {
     id: 'fcbrwa-enzyme',
@@ -34,6 +36,7 @@ const collections: NFTCollection[] = [
     floorPrice: 0.85,
     totalVolume: 275.4,
     myHoldings: 8,
+    myHoldingsValue: 6.8,
     status: 'active',
     openseaUrl: 'https://opensea.io/collection/fcbrwa-enzyme',
   },
@@ -45,9 +48,31 @@ const collections: NFTCollection[] = [
     floorPrice: 0,
     totalVolume: 0,
     myHoldings: 0,
+    myHoldingsValue: 0,
     status: 'coming-soon',
+    openseaUrl: 'https://opensea.io/collection/fyre-purebreeds',
+  },
+  {
+    id: 'fyre-hybrids',
+    name: 'Fyre Hybrids',
+    category: 'hybrids',
+    totalItems: 0,
+    floorPrice: 0,
+    totalVolume: 0,
+    myHoldings: 0,
+    myHoldingsValue: 0,
+    status: 'coming-soon',
+    openseaUrl: 'https://opensea.io/collection/fyre-hybrids',
   },
 ];
+
+// User balances for each category
+const userBalances = {
+  oocytes: { count: 12, value: 7.8 },
+  enzymes: { count: 8, value: 6.8 },
+  purebreeds: { count: 0, value: 0 },
+  hybrids: { count: 0, value: 0 },
+};
 
 interface NFTCollectionsProps {
   className?: string;
@@ -58,6 +83,7 @@ const getCategoryLabel = (category: string) => {
     case 'oocytes': return 'Oocytes';
     case 'enzymes': return 'Enzymes';
     case 'purebreeds': return 'PureBreeds';
+    case 'hybrids': return 'Hybrids';
     default: return category;
   }
 };
@@ -66,12 +92,29 @@ export function NFTCollections({ className }: NFTCollectionsProps) {
   return (
     <div className={cn("rounded-lg bg-card shadow-card", className)}>
       <div className="flex flex-col border-b border-border p-4 gap-3">
-        <h3 className="font-semibold">NFT Pre-Assets</h3>
-        {/* My Holdings Breakdown */}
+        <a 
+          href="https://opensea.io" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 group"
+        >
+          <h3 className="font-semibold group-hover:text-primary transition-colors">NFT Pre-Assets</h3>
+          <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        </a>
+        {/* My Holdings Breakdown with balance values */}
         <div className="flex gap-2 flex-wrap">
-          <Badge variant="outline" className="text-xs">Oocytes: 1</Badge>
-          <Badge variant="outline" className="text-xs">Enzymes: 1</Badge>
-          <Badge variant="outline" className="text-xs">PureBreeds: 1</Badge>
+          <Badge variant="outline" className="text-xs">
+            Oocytes: {userBalances.oocytes.count} ({userBalances.oocytes.value} ETH)
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            Enzymes: {userBalances.enzymes.count} ({userBalances.enzymes.value} ETH)
+          </Badge>
+          <Badge variant="outline" className="text-xs opacity-50">
+            PureBreeds: {userBalances.purebreeds.count}
+          </Badge>
+          <Badge variant="outline" className="text-xs opacity-50">
+            Hybrids: {userBalances.hybrids.count}
+          </Badge>
         </div>
       </div>
 
@@ -138,8 +181,17 @@ export function NFTCollections({ className }: NFTCollectionsProps) {
                 <td className="p-4 text-right font-mono">
                   {collection.status === 'coming-soon' ? '-' : `${collection.totalVolume.toFixed(1)} ETH`}
                 </td>
-                <td className="p-4 text-right font-mono font-medium">
-                  {collection.status === 'coming-soon' ? '-' : collection.myHoldings}
+                <td className="p-4 text-right">
+                  {collection.status === 'coming-soon' ? (
+                    <span className="font-mono">-</span>
+                  ) : (
+                    <div>
+                      <span className="font-mono font-medium">{collection.myHoldings}</span>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        ({collection.myHoldingsValue} ETH)
+                      </span>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
