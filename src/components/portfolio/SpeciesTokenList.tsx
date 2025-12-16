@@ -84,6 +84,16 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
 
   const displayedSpecies = filteredAndSortedSpecies.slice(0, visibleCount);
 
+  // Calculate total value - must be before any conditional returns
+  const totalValue = useMemo(() => {
+    return species.reduce((total, token) => {
+      const hash = token.tokenAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      const unitsHeld = (hash % 50000) + 1000;
+      const unitValue = token.marketCap / (token.holders * 100) || 0.01;
+      return total + (unitsHeld * unitValue);
+    }, 0);
+  }, [species]);
+
   const toggleSort = (field: SortField2) => {
     if (sortField === field) {
       setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -113,16 +123,6 @@ export function SpeciesTokenList({ species, isLoading, className }: SpeciesToken
       </div>
     );
   }
-
-  // Calculate total value
-  const totalValue = useMemo(() => {
-    return species.reduce((total, token) => {
-      const hash = token.tokenAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const unitsHeld = (hash % 50000) + 1000;
-      const unitValue = token.marketCap / (token.holders * 100) || 0.01;
-      return total + (unitsHeld * unitValue);
-    }, 0);
-  }, [species]);
 
   return (
     <div className={cn("rounded-lg bg-card shadow-card", className)}>
