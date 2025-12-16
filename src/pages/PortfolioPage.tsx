@@ -3,12 +3,13 @@ import { StatCard } from '@/components/portfolio/StatCard';
 import { SpeciesTokenList } from '@/components/portfolio/SpeciesTokenList';
 import { NFTCollections } from '@/components/portfolio/NFTCollections';
 import { useSpecies } from '@/hooks/useSpecies';
-import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2 } from 'lucide-react';
+import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { QuickBuyDialog } from '@/components/dialogs/QuickBuyDialog';
 import { MultiBuyDialog } from '@/components/dialogs/MultiBuyDialog';
+import { toast } from 'sonner';
 
 interface WalletSearchResult {
   address: string;
@@ -25,12 +26,15 @@ const mockSearchResults: Record<string, WalletSearchResult> = {
     preAssets: 87,
     custodiedCount: 3,
     topHoldings: [
-      { symbol: 'FDRG', units: '12.5M' },
-      { symbol: 'SSRP', units: '15.1M' },
-      { symbol: 'TWLF', units: '9.3M' },
+      { symbol: 'FCBC121', units: '12.5M' },
+      { symbol: 'FCBC45', units: '15.1M' },
+      { symbol: 'FCBC203', units: '9.3M' },
     ],
   },
 };
+
+const FREE_SEARCHES_PER_DAY = 5;
+const VOTE_TICKETS_BALANCE = 36;
 
 export function PortfolioPage() {
   const { data: species = [], isLoading } = useSpecies(100);
@@ -38,9 +42,19 @@ export function PortfolioPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<WalletSearchResult | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [freeSearchesUsed, setFreeSearchesUsed] = useState(0);
+  const [voteTickets, setVoteTickets] = useState(VOTE_TICKETS_BALANCE);
+
+  const freeSearchesRemaining = FREE_SEARCHES_PER_DAY - freeSearchesUsed;
 
   const handleSearch = () => {
     if (!addressSearch.trim()) return;
+    
+    // Check if user needs to use vote tickets
+    if (freeSearchesRemaining <= 0 && voteTickets <= 0) {
+      toast.error('No free searches or vote tickets remaining');
+      return;
+    }
     
     setIsSearching(true);
     setSearchError(null);
@@ -48,6 +62,16 @@ export function PortfolioPage() {
 
     setTimeout(() => {
       setIsSearching(false);
+      
+      // Deduct search cost
+      if (freeSearchesRemaining > 0) {
+        setFreeSearchesUsed(prev => prev + 1);
+        toast.info(`Free search used. ${freeSearchesRemaining - 1} remaining today.`);
+      } else {
+        setVoteTickets(prev => prev - 1);
+        toast.info(`Vote ticket used. ${voteTickets - 1} remaining.`);
+      }
+      
       if (addressSearch.toLowerCase().includes('0x1234')) {
         setSearchResult(mockSearchResults['0x1234']);
       } else if (addressSearch.length >= 4) {
@@ -57,8 +81,8 @@ export function PortfolioPage() {
           preAssets: Math.floor(Math.random() * 50) + 10,
           custodiedCount: Math.floor(Math.random() * 3),
           topHoldings: [
-            { symbol: 'FCBC' + Math.floor(Math.random() * 100), units: `${(Math.random() * 10).toFixed(1)}M` },
-            { symbol: 'FCBC' + Math.floor(Math.random() * 100), units: `${(Math.random() * 5).toFixed(1)}M` },
+            { symbol: 'FCBC' + Math.floor(Math.random() * 500), units: `${(Math.random() * 10).toFixed(1)}M` },
+            { symbol: 'FCBC' + Math.floor(Math.random() * 500), units: `${(Math.random() * 5).toFixed(1)}M` },
           ],
         });
       } else {
@@ -83,6 +107,13 @@ export function PortfolioPage() {
 
       {/* Address Search */}
       <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+          <span>Free searches: {freeSearchesRemaining}/{FREE_SEARCHES_PER_DAY} today</span>
+          <span className="flex items-center gap-1">
+            <Ticket className="h-3 w-3" />
+            Vote Tickets: {voteTickets}
+          </span>
+        </div>
         <div className="relative flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -157,12 +188,19 @@ export function PortfolioPage() {
           icon={<Wallet className="h-4 w-4" />}
           delay={0}
         />
-        <StatCard
-          label="$FCBCC Creator Coin"
-          value="2,450"
-          icon={<CircleDollarSign className="h-4 w-4" />}
-          delay={100}
-        />
+        <a 
+          href="https://zora.co/coin/base:0x1234567890" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="block"
+        >
+          <StatCard
+            label="$FCBCC Creator Coin"
+            value="2,450"
+            icon={<CircleDollarSign className="h-4 w-4" />}
+            delay={100}
+          />
+        </a>
         <StatCard
           label="Pre-Assets Held"
           value="122"
@@ -193,7 +231,7 @@ export function PortfolioPage() {
         </MultiBuyDialog>
       </div>
 
-      {/* Fyre DNA Pre-Assets List */}
+      {/* Fyre PureBreeds Genomes List */}
       <SpeciesTokenList species={species} isLoading={isLoading} />
 
       {/* NFT Collections */}

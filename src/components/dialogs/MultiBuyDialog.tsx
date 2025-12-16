@@ -21,28 +21,28 @@ interface PreAsset {
   mcap: string;
 }
 
-// Generate list of pre-assets for selection
-const allPreAssets: PreAsset[] = [
-  { id: '1', name: 'Golden Retriever', ticker: 'GOLDEN', mcap: '$2.4M' },
-  { id: '2', name: 'Arctic Fox', ticker: 'ARCTIC', mcap: '$1.8M' },
-  { id: '3', name: 'Bengal Tiger', ticker: 'BENGAL', mcap: '$1.5M' },
-  { id: '4', name: 'Snow Leopard', ticker: 'SNOW', mcap: '$1.2M' },
-  { id: '5', name: 'Red Panda', ticker: 'REDP', mcap: '$980K' },
-  { id: '6', name: 'Blue Whale', ticker: 'BLUE', mcap: '$850K' },
-  { id: '7', name: 'Phoenix Bird', ticker: 'PHNX', mcap: '$720K' },
-  { id: '8', name: 'Silver Wolf', ticker: 'SILVER', mcap: '$650K' },
-  { id: '9', name: 'Emerald Dragon', ticker: 'EMRLD', mcap: '$580K' },
-  { id: '10', name: 'Crystal Unicorn', ticker: 'CRYST', mcap: '$420K' },
-  { id: '11', name: 'Shadow Panther', ticker: 'SHADOW', mcap: '$380K' },
-  { id: '12', name: 'Thunder Horse', ticker: 'THNDR', mcap: '$350K' },
-  { id: '13', name: 'Frost Bear', ticker: 'FROST', mcap: '$320K' },
-  { id: '14', name: 'Fire Salamander', ticker: 'FIRE', mcap: '$290K' },
-  { id: '15', name: 'Ocean Dolphin', ticker: 'OCEAN', mcap: '$260K' },
-  { id: '16', name: 'Storm Eagle', ticker: 'STORM', mcap: '$240K' },
-  { id: '17', name: 'Jade Turtle', ticker: 'JADE', mcap: '$220K' },
-  { id: '18', name: 'Ruby Falcon', ticker: 'RUBY', mcap: '$200K' },
-  { id: '19', name: 'Sapphire Owl', ticker: 'SAPHR', mcap: '$180K' },
-  { id: '20', name: 'Obsidian Raven', ticker: 'OBSDN', mcap: '$160K' },
+// Generate list of purebreeds for selection
+const allPurebreeds: PreAsset[] = [
+  { id: '1', name: 'Javan Rhinoceros', ticker: '$FCBC121', mcap: '$2.4M' },
+  { id: '2', name: 'Sumatran Tiger', ticker: '$FCBC45', mcap: '$1.8M' },
+  { id: '3', name: 'Amur Leopard', ticker: '$FCBC203', mcap: '$1.5M' },
+  { id: '4', name: 'Mountain Gorilla', ticker: '$FCBC89', mcap: '$1.2M' },
+  { id: '5', name: 'Vaquita Porpoise', ticker: '$FCBC156', mcap: '$980K' },
+  { id: '6', name: 'Hawksbill Turtle', ticker: '$FCBC312', mcap: '$850K' },
+  { id: '7', name: 'Saola', ticker: '$FCBC78', mcap: '$720K' },
+  { id: '8', name: 'Cross River Gorilla', ticker: '$FCBC234', mcap: '$650K' },
+  { id: '9', name: 'Yangtze Finless Porpoise', ticker: '$FCBC167', mcap: '$580K' },
+  { id: '10', name: 'Black Rhino', ticker: '$FCBC99', mcap: '$420K' },
+  { id: '11', name: 'Philippine Eagle', ticker: '$FCBC412', mcap: '$390K' },
+  { id: '12', name: 'Sumatran Elephant', ticker: '$FCBC55', mcap: '$350K' },
+  { id: '13', name: 'Red Wolf', ticker: '$FCBC188', mcap: '$320K' },
+  { id: '14', name: 'Kakapo Parrot', ticker: '$FCBC267', mcap: '$290K' },
+  { id: '15', name: 'Addax Antelope', ticker: '$FCBC134', mcap: '$260K' },
+  { id: '16', name: 'Asian Elephant', ticker: '$FCBC401', mcap: '$240K' },
+  { id: '17', name: 'Sunda Pangolin', ticker: '$FCBC23', mcap: '$220K' },
+  { id: '18', name: 'African Wild Dog', ticker: '$FCBC356', mcap: '$200K' },
+  { id: '19', name: 'Indochinese Tiger', ticker: '$FCBC178', mcap: '$180K' },
+  { id: '20', name: 'Bornean Orangutan', ticker: '$FCBC289', mcap: '$160K' },
 ];
 
 interface MultiBuyDialogProps {
@@ -54,9 +54,9 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const filteredAssets = useMemo(() => {
-    if (!search) return allPreAssets;
+    if (!search) return allPurebreeds;
     const term = search.toLowerCase();
-    return allPreAssets.filter(
+    return allPurebreeds.filter(
       a => a.name.toLowerCase().includes(term) || a.ticker.toLowerCase().includes(term)
     );
   }, [search]);
@@ -69,10 +69,19 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
       } else if (next.size < 100) {
         next.add(id);
       } else {
-        toast.error('Maximum 100 pre-assets allowed');
+        toast.error('Maximum 100 purebreeds allowed');
       }
       return next;
     });
+  };
+
+  const toggleAll = () => {
+    if (selected.size === filteredAssets.length) {
+      setSelected(new Set());
+    } else {
+      const maxToSelect = Math.min(filteredAssets.length, 100);
+      setSelected(new Set(filteredAssets.slice(0, maxToSelect).map(a => a.id)));
+    }
   };
 
   const removeAsset = (id: string) => {
@@ -85,14 +94,15 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
 
   const handleBuyAll = () => {
     if (selected.size === 0) {
-      toast.error('Select at least one pre-asset');
+      toast.error('Select at least one purebreed');
       return;
     }
-    toast.success(`Bought ${selected.size} pre-assets in 1 click!`);
+    toast.success(`Bought ${selected.size} purebreeds in 1 click!`);
     setSelected(new Set());
   };
 
-  const selectedAssets = allPreAssets.filter(a => selected.has(a.id));
+  const selectedAssets = allPurebreeds.filter(a => selected.has(a.id));
+  const allSelected = selected.size === filteredAssets.length && filteredAssets.length > 0;
 
   return (
     <Dialog>
@@ -103,7 +113,7 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Layers className="h-5 w-5" />
-            MultiBuy Pre-Assets
+            MultiBuy Purebreeds
           </DialogTitle>
         </DialogHeader>
 
@@ -116,7 +126,7 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
                 variant="secondary"
                 className="gap-1 pr-1"
               >
-                ${asset.ticker}
+                {asset.ticker}
                 <button
                   onClick={() => removeAsset(asset.id)}
                   className="ml-1 p-0.5 rounded hover:bg-background/50"
@@ -139,8 +149,17 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
           />
         </div>
 
+        {/* Mark All Checkbox */}
+        <div 
+          className="flex items-center gap-3 p-2 rounded-lg bg-primary/10 cursor-pointer hover:bg-primary/20 transition-colors"
+          onClick={toggleAll}
+        >
+          <Checkbox checked={allSelected} />
+          <span className="font-medium text-sm">Mark All ({filteredAssets.length})</span>
+        </div>
+
         {/* Asset List */}
-        <ScrollArea className="flex-1 max-h-[300px]">
+        <ScrollArea className="flex-1 max-h-[250px]">
           <div className="space-y-1 pr-4">
             {filteredAssets.map((asset) => (
               <div
@@ -150,11 +169,11 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
               >
                 <Checkbox checked={selected.has(asset.id)} />
                 <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                  {asset.ticker.slice(0, 2)}
+                  {asset.ticker.replace('$FCBC', '').slice(0, 3)}
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-sm">{asset.name}</p>
-                  <p className="text-xs text-muted-foreground font-mono">${asset.ticker}</p>
+                  <p className="text-xs text-muted-foreground font-mono">{asset.ticker}</p>
                 </div>
                 <span className="text-xs text-muted-foreground font-mono">{asset.mcap}</span>
               </div>
