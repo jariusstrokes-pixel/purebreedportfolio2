@@ -1,5 +1,7 @@
 import { Wallet, Copy, ExternalLink, LogOut, Settings, Sparkles, Sun, Moon, Search, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useAccount, useDisconnect } from "wagmi";
 import {
   Popover,
   PopoverContent,
@@ -12,7 +14,9 @@ import { AddonsDialog } from '@/components/dialogs/AddonsDialog';
 
 export function WalletPopover() {
   const { theme, toggleTheme } = useTheme();
-  
+  const { disconnect } = useDisconnect();
+  const { open } = useWeb3Modal();
+  const { address, isConnected } = useAccount();
   const mockWallet = {
     address: '0x1234...5678',
     fullAddress: '0x1234567890abcdef1234567890abcdef12345678',
