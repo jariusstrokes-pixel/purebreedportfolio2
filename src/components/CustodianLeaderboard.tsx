@@ -5,20 +5,21 @@ import { cn } from '@/lib/utils';
 interface LeaderboardEntry {
   rank: number;
   address: string;
+  baseName?: string;
   custodies: number;
   totalUnits: string;
   isCurrentUser?: boolean;
 }
 
 const leaderboardData: LeaderboardEntry[] = [
-  { rank: 1, address: '0x1234...5678', custodies: 12, totalUnits: '145.2M', isCurrentUser: false },
-  { rank: 2, address: '0x8765...4321', custodies: 9, totalUnits: '98.7M', isCurrentUser: false },
+  { rank: 1, address: '0x1234...5678', baseName: 'JariusOS.base.eth', custodies: 12, totalUnits: '145.2M', isCurrentUser: false },
+  { rank: 2, address: '0x8765...4321', baseName: 'cryptowhale.base.eth', custodies: 9, totalUnits: '98.7M', isCurrentUser: false },
   { rank: 3, address: '0x1234...5678', custodies: 7, totalUnits: '76.3M', isCurrentUser: true },
-  { rank: 4, address: '0xABCD...EFGH', custodies: 5, totalUnits: '54.1M', isCurrentUser: false },
+  { rank: 4, address: '0xABCD...EFGH', baseName: 'fcbcollector.base.eth', custodies: 5, totalUnits: '54.1M', isCurrentUser: false },
   { rank: 5, address: '0x9999...1111', custodies: 4, totalUnits: '43.8M', isCurrentUser: false },
-  { rank: 6, address: '0x5555...6666', custodies: 3, totalUnits: '32.5M', isCurrentUser: false },
+  { rank: 6, address: '0x5555...6666', baseName: 'dnamaster.base.eth', custodies: 3, totalUnits: '32.5M', isCurrentUser: false },
   { rank: 7, address: '0x7777...8888', custodies: 3, totalUnits: '28.9M', isCurrentUser: false },
-  { rank: 8, address: '0x2222...3333', custodies: 2, totalUnits: '21.4M', isCurrentUser: false },
+  { rank: 8, address: '0x2222...3333', baseName: 'wildkeeper.base.eth', custodies: 2, totalUnits: '21.4M', isCurrentUser: false },
   { rank: 9, address: '0x4444...5555', custodies: 2, totalUnits: '18.2M', isCurrentUser: false },
   { rank: 10, address: '0x6666...7777', custodies: 1, totalUnits: '12.8M', isCurrentUser: false },
 ];
@@ -44,7 +45,7 @@ export function CustodianLeaderboard() {
           <Trophy className="h-4 w-4 text-primary" />
           <h2 className="font-semibold">Custodian Leaderboard</h2>
         </div>
-        <Badge variant="secondary" className="text-xs">Season 1</Badge>
+        <Badge variant="secondary" className="text-xs">Epoch 1</Badge>
       </div>
       
       <div className="divide-y divide-border/50">
@@ -68,7 +69,7 @@ export function CustodianLeaderboard() {
                     rel="noopener noreferrer"
                     className="font-mono text-xs hover:text-primary transition-colors flex items-center gap-1"
                   >
-                    {entry.address}
+                    {entry.baseName || entry.address}
                     <ExternalLink className="h-2.5 w-2.5 opacity-50" />
                   </a>
                   {entry.isCurrentUser && (

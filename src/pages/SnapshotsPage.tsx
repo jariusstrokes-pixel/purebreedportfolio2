@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Lock, Unlock, Clock, Info, Check, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Box, Lock, Unlock, Clock, Info, Check, ChevronDown, ChevronUp, ExternalLink, HelpCircle, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CustodianLeaderboard } from '@/components/CustodianLeaderboard';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { TickerHoverCard } from '@/components/TickerHoverCard';
+import { EarningsDashboardDialog } from '@/components/dialogs/EarningsDashboardDialog';
 
 interface MysteryBox {
   id: number;
@@ -26,37 +29,19 @@ const initialBoxes: MysteryBox[] = Array.from({
   hint: i < 6 ? hints[i % hints.length] : undefined
 }));
 
-const custodiedAssets = [{
-  name: 'Javan Rhinoceros',
-  symbol: '$FCBC121',
-  units: '12.5M',
-  custodian: '0x1234...5678',
-  isMine: true
-}, {
-  name: 'Sumatran Tiger',
-  symbol: '$FCBC45',
-  units: '8.2M',
-  custodian: '0x8765...4321',
-  isMine: false
-}, {
-  name: 'Amur Leopard',
-  symbol: '$FCBC203',
-  units: '15.1M',
-  custodian: '0x1234...5678',
-  isMine: true
-}, {
-  name: 'Mountain Gorilla',
-  symbol: '$FCBC89',
-  units: '6.7M',
-  custodian: '0x9999...1111',
-  isMine: false
-}, {
-  name: 'Vaquita Porpoise',
-  symbol: '$FCBC156',
-  units: '9.3M',
-  custodian: '0x1234...5678',
-  isMine: true
-}];
+// All purebreed genomes held by user
+const allGenomesHeld = [
+  { symbol: '$FCBC121', name: 'Javan Rhinoceros', units: '12.5M', isCustodian: true },
+  { symbol: '$FCBC203', name: 'Amur Leopard', units: '15.1M', isCustodian: true },
+  { symbol: '$FCBC156', name: 'Vaquita Porpoise', units: '9.3M', isCustodian: true },
+  { symbol: '$FCBC312', name: 'Hawksbill Turtle', units: '22.3M', isCustodian: false },
+  { symbol: '$FCBC167', name: 'Yangtze Finless Porpoise', units: '11.2M', isCustodian: false },
+  { symbol: '$FCBC45', name: 'Sumatran Tiger', units: '5.8M', isCustodian: false },
+  { symbol: '$FCBC89', name: 'Mountain Gorilla', units: '3.2M', isCustodian: false },
+  { symbol: '$FCBC38', name: 'Golden Eagle', units: '7.4M', isCustodian: false },
+  { symbol: '$FCBC12', name: 'Snow Leopard', units: '2.1M', isCustodian: false },
+  { symbol: '$FCBC200', name: 'Blue Whale', units: '18.9M', isCustodian: false },
+];
 
 const epoch0Snaps = ['$FCBC121', '$FCBC19', '$FCBC56', '$FCBC2'];
 
@@ -86,19 +71,13 @@ const leadingPreSnapshots = [{
   rank: '#1'
 }];
 
-const myCustodiedSpecies = [
-  { symbol: '$FCBC121', name: 'Javan Rhinoceros', units: '12.5M', rank: '#1' },
-  { symbol: '$FCBC203', name: 'Amur Leopard', units: '15.1M', rank: '#1' },
-  { symbol: '$FCBC156', name: 'Vaquita Porpoise', units: '9.3M', rank: '#1' },
-  { symbol: '$FCBC312', name: 'Hawksbill Turtle', units: '22.3M', rank: '#1' },
-  { symbol: '$FCBC167', name: 'Yangtze Finless Porpoise', units: '11.2M', rank: '#1' },
-];
-
 export function SnapshotsPage() {
   const [boxes, setBoxes] = useState<MysteryBox[]>(initialBoxes);
   const [selectedBox, setSelectedBox] = useState<MysteryBox | null>(null);
-  const [showMyHoldings, setShowMyHoldings] = useState(false);
-  const [custodiedExpanded, setCustodiedExpanded] = useState(false);
+  const [showCustodiedOnly, setShowCustodiedOnly] = useState(false);
+  const [genomesExpanded, setGenomesExpanded] = useState(false);
+  const [earningsDialogOpen, setEarningsDialogOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<{ ticker: string; name: string } | null>(null);
   const [countdown, setCountdown] = useState({
     days: 2,
     hours: 14,
@@ -153,8 +132,18 @@ export function SnapshotsPage() {
     setSelectedBox(null);
   };
 
-  const filteredAssets = showMyHoldings ? custodiedAssets.filter(a => a.isMine) : custodiedAssets;
-  const visibleCustodied = custodiedExpanded ? myCustodiedSpecies : myCustodiedSpecies.slice(0, 3);
+  const handleAssetClick = (asset: { symbol: string; name: string; isCustodian: boolean }) => {
+    if (asset.isCustodian) {
+      setSelectedAsset({ ticker: asset.symbol, name: asset.name });
+      setEarningsDialogOpen(true);
+    }
+  };
+
+  const filteredGenomes = showCustodiedOnly 
+    ? allGenomesHeld.filter(g => g.isCustodian) 
+    : allGenomesHeld;
+  
+  const visibleGenomes = genomesExpanded ? filteredGenomes : filteredGenomes.slice(0, 6);
 
   return (
     <div className="space-y-6 pb-20">
@@ -201,26 +190,42 @@ export function SnapshotsPage() {
         <div className="flex flex-wrap justify-center gap-2">
           <span className="text-xs text-muted-foreground mr-1">Epoch 0 snaps:</span>
           {epoch0Snaps.map(snap => (
-            <Badge key={snap} variant="secondary" className="text-xs font-mono">
-              {snap}
-            </Badge>
+            <TickerHoverCard key={snap} ticker={snap.replace('$', '')}>
+              <Badge variant="secondary" className="text-xs font-mono cursor-pointer hover:bg-secondary/80">
+                {snap}
+              </Badge>
+            </TickerHoverCard>
           ))}
         </div>
       </div>
 
       {/* Pre-Snapshots Leading */}
       <div className="rounded-lg bg-card p-4 shadow-card">
-        <h2 className="font-semibold mb-3">Leading Pre-Snapshots</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="font-semibold">Leading Pre-Snapshots</h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[250px]">
+                <p className="text-xs">These are pre-snapshot purebreeds where you are currently the top holder (#1). If a snapshot occurs, you become the custodian!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="grid grid-cols-2 gap-2">
           {leadingPreSnapshots.map((species, i) => (
-            <div key={i} className="bg-muted/50 rounded-lg p-3 border border-success/20">
-              <p className="text-xs text-muted-foreground truncate">{species.name}</p>
-              <p className="font-mono text-sm font-bold">${species.symbol}</p>
-              <div className="flex items-center justify-between mt-1">
-                <Badge variant="outline" className="text-[10px] px-1 py-0 text-success border-success/30">{species.rank}</Badge>
-                <span className="text-xs text-muted-foreground">{species.units}</span>
+            <TickerHoverCard key={i} ticker={species.symbol}>
+              <div className="bg-muted/50 rounded-lg p-3 border border-success/20 cursor-pointer hover:bg-muted/70 transition-colors">
+                <p className="text-xs text-muted-foreground truncate">{species.name}</p>
+                <p className="font-mono text-sm font-bold">${species.symbol}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 text-success border-success/30">{species.rank}</Badge>
+                  <span className="text-xs text-muted-foreground">{species.units}</span>
+                </div>
               </div>
-            </div>
+            </TickerHoverCard>
           ))}
         </div>
       </div>
@@ -296,115 +301,113 @@ export function SnapshotsPage() {
       {/* Custodian Leaderboard */}
       <CustodianLeaderboard />
 
-      {/* Custodied Assets */}
+      {/* Custodied Assets / Genomes Held */}
       <div className="rounded-lg bg-card shadow-card">
         <div className="flex items-center justify-between border-b border-border p-4">
-          <h2 className="font-semibold">Custodied Assets</h2>
+          <h2 className="font-semibold">My Purebreed Genomes</h2>
           <div className="flex items-center gap-2">
-            <Switch id="my-holdings" checked={showMyHoldings} onCheckedChange={setShowMyHoldings} />
-            <Label htmlFor="my-holdings" className="text-sm cursor-pointer">
-              My Holdings Only
+            <Switch 
+              id="custodied-only" 
+              checked={showCustodiedOnly} 
+              onCheckedChange={setShowCustodiedOnly} 
+            />
+            <Label htmlFor="custodied-only" className="text-sm cursor-pointer">
+              Custodied Only
             </Label>
           </div>
         </div>
         
-        {/* My Custodied Species Cards - Expandable */}
-        <div className="p-4 border-b border-border">
-          <Collapsible open={custodiedExpanded} onOpenChange={setCustodiedExpanded}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground">My Custodied Species ({myCustodiedSpecies.length})</p>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 px-2">
-                  {custodiedExpanded ? (
-                    <>
-                      <span className="text-xs mr-1">Less</span>
-                      <ChevronUp className="h-3 w-3" />
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-xs mr-1">More</span>
-                      <ChevronDown className="h-3 w-3" />
-                    </>
-                  )}
-                </Button>
-              </CollapsibleTrigger>
+        {/* Genomes Grid - Card View */}
+        <div className="p-4">
+          <Collapsible open={genomesExpanded} onOpenChange={setGenomesExpanded}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-muted-foreground">
+                {showCustodiedOnly 
+                  ? `${allGenomesHeld.filter(g => g.isCustodian).length} Custodied Purebreeds`
+                  : `${allGenomesHeld.length} Total Genomes Held`
+                }
+              </p>
+              {filteredGenomes.length > 6 && (
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 px-2">
+                    {genomesExpanded ? (
+                      <>
+                        <span className="text-xs mr-1">Less</span>
+                        <ChevronUp className="h-3 w-3" />
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs mr-1">More ({filteredGenomes.length - 6})</span>
+                        <ChevronDown className="h-3 w-3" />
+                      </>
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+              )}
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {visibleCustodied.slice(0, 3).map((species, i) => (
-                <a 
-                  key={i} 
-                  href={`https://zora.co/coin/base:${species.symbol.replace('$', '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-success/5 rounded-lg p-2 text-center border border-success/20 hover:bg-success/10 transition-colors group"
-                >
-                  <p className="font-mono text-xs font-bold text-success flex items-center justify-center gap-1">
-                    {species.symbol}
-                    <ExternalLink className="h-2 w-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">{species.name}</p>
-                </a>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {visibleGenomes.slice(0, 6).map((genome, i) => (
+                <TickerHoverCard key={i} ticker={genome.symbol.replace('$', '')}>
+                  <div 
+                    onClick={() => handleAssetClick(genome)}
+                    className={cn(
+                      "rounded-lg p-3 border transition-colors cursor-pointer",
+                      genome.isCustodian 
+                        ? "bg-success/5 border-success/30 hover:bg-success/10" 
+                        : "bg-muted/50 border-border hover:bg-muted/70"
+                    )}
+                  >
+                    <div className="flex items-start justify-between mb-1">
+                      <p className={cn(
+                        "font-mono text-sm font-bold",
+                        genome.isCustodian ? "text-success" : "text-foreground"
+                      )}>
+                        {genome.symbol}
+                      </p>
+                      {genome.isCustodian && (
+                        <Crown className="h-3 w-3 text-success" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{genome.name}</p>
+                    <p className="text-xs font-mono mt-1">{genome.units}</p>
+                  </div>
+                </TickerHoverCard>
               ))}
             </div>
+            
             <CollapsibleContent>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                {visibleCustodied.slice(3).map((species, i) => (
-                  <a 
-                    key={i} 
-                    href={`https://zora.co/coin/base:${species.symbol.replace('$', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-success/5 rounded-lg p-2 text-center border border-success/20 hover:bg-success/10 transition-colors group"
-                  >
-                    <p className="font-mono text-xs font-bold text-success flex items-center justify-center gap-1">
-                      {species.symbol}
-                      <ExternalLink className="h-2 w-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </p>
-                    <p className="text-[10px] text-muted-foreground truncate">{species.name}</p>
-                  </a>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                {visibleGenomes.slice(6).map((genome, i) => (
+                  <TickerHoverCard key={i} ticker={genome.symbol.replace('$', '')}>
+                    <div 
+                      onClick={() => handleAssetClick(genome)}
+                      className={cn(
+                        "rounded-lg p-3 border transition-colors cursor-pointer",
+                        genome.isCustodian 
+                          ? "bg-success/5 border-success/30 hover:bg-success/10" 
+                          : "bg-muted/50 border-border hover:bg-muted/70"
+                      )}
+                    >
+                      <div className="flex items-start justify-between mb-1">
+                        <p className={cn(
+                          "font-mono text-sm font-bold",
+                          genome.isCustodian ? "text-success" : "text-foreground"
+                        )}>
+                          {genome.symbol}
+                        </p>
+                        {genome.isCustodian && (
+                          <Crown className="h-3 w-3 text-success" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{genome.name}</p>
+                      <p className="text-xs font-mono mt-1">{genome.units}</p>
+                    </div>
+                  </TickerHoverCard>
                 ))}
               </div>
             </CollapsibleContent>
           </Collapsible>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="p-4 font-medium">Asset</th>
-                <th className="p-4 font-medium">Ticker</th>
-                <th className="p-4 font-medium text-right">Units</th>
-                <th className="p-4 font-medium text-right">Custodian</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAssets.map((asset, i) => (
-                <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                  <td className="p-4 font-medium">{asset.name}</td>
-                  <td className="p-4">
-                    <a 
-                      href={`https://zora.co/coin/base:${asset.symbol.replace('$', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {asset.symbol}
-                    </a>
-                  </td>
-                  <td className="p-4 text-right font-mono">{asset.units}</td>
-                  <td className="p-4 text-right">
-                    <span className={cn(
-                      "font-mono text-xs px-2 py-1 rounded",
-                      asset.isMine ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                    )}>
-                      {asset.isMine ? 'You' : asset.custodian}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -432,6 +435,13 @@ export function SnapshotsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Earnings Dashboard Dialog */}
+      <EarningsDashboardDialog 
+        open={earningsDialogOpen}
+        onOpenChange={setEarningsDialogOpen}
+        asset={selectedAsset}
+      />
     </div>
   );
 }
