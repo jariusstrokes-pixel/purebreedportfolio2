@@ -7,7 +7,12 @@ import { SnapshotsPage } from '@/pages/SnapshotsPage';
 import { LandingPage } from '@/pages/LandingPage';
 import { WalletPopover } from '@/components/WalletPopover';
 import { FooterNav } from '@/components/FooterNav';
+import { TasksDropdown } from '@/components/TasksDropdown';
+import { AnimatedTitle } from '@/components/AnimatedTitle';
+import { AppFooter } from '@/components/AppFooter';
 import { useTheme } from '@/hooks/useTheme';
+import { Button } from '@/components/ui/button';
+import { Sun, Moon } from 'lucide-react';
 
 import fcbcWhiteLogo from '@/assets/fcbc_white.png';
 import fcbcDarkLogo from '@/assets/fcbc_dark.png';
@@ -17,7 +22,7 @@ type Page = 'snapshots' | 'portfolio';
 const queryClient = new QueryClient();
 
 const Index = () => {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [isConnected, setIsConnected] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('snapshots');
 
@@ -41,10 +46,14 @@ const Index = () => {
           <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex items-center gap-2">
               <img src={logo} alt="FCBC" className="h-8 w-8" />
-              <span className="font-semibold text-sm">Fyre App 2</span>
+              <AnimatedTitle />
             </div>
 
             <div className="flex items-center gap-1">
+              <TasksDropdown />
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
               <WalletPopover />
             </div>
           </header>
@@ -53,15 +62,11 @@ const Index = () => {
             {currentPage === 'snapshots' ? <SnapshotsPage /> : <PortfolioPage />}
           </main>
 
+          {/* App Footer */}
+          <AppFooter />
+
           {/* Footer Navigation */}
           <FooterNav currentPage={currentPage} onPageChange={setCurrentPage} />
-
-          {/* Footer */}
-          <footer className="border-t border-border py-3 px-4 text-center text-xs text-muted-foreground mb-14">
-            <a href="https://fcbc.fun" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              fcbc.fun
-            </a>
-          </footer>
         </div>
       </QueryClientProvider>
     </WagmiProvider>
