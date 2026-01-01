@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { CustodianLeaderboard } from '@/components/CustodianLeaderboard';
 
 interface MysteryBox {
   id: number;
@@ -291,6 +292,9 @@ export function SnapshotsPage() {
           </ul>
         </div>
       </div>
+
+      {/* Custodian Leaderboard */}
+      <CustodianLeaderboard />
 
       {/* Custodied Assets */}
       <div className="rounded-lg bg-card shadow-card">
