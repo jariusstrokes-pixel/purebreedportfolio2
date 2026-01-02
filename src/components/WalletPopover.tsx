@@ -14,6 +14,7 @@ import { QuickBuyDialog } from '@/components/dialogs/QuickBuyDialog';
 import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useReferrals } from '@/hooks/useReferrals';
 
 export function WalletPopover() {
   const { disconnect } = useDisconnect();
@@ -21,6 +22,9 @@ export function WalletPopover() {
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Real referral system
+  const { code: referralCode, totalReferrals, copyReferralLink, isLoading: referralLoading } = useReferrals(address);
   
   // Mock data that would come from blockchain/API
   const walletData = {
@@ -31,8 +35,6 @@ export function WalletPopover() {
     custodies: 3,
     voteTickets: 36,
     freeSearchesRemaining: 5,
-    referrals: 12,
-    inviteCode: 'FCBC-XYZ123',
   };
 
   const displayAddress = address 
@@ -44,11 +46,6 @@ export function WalletPopover() {
   const copyAddress = () => {
     navigator.clipboard.writeText(fullAddress);
     toast.success('Address copied to clipboard');
-  };
-
-  const copyInviteLink = () => {
-    navigator.clipboard.writeText(`https://fyreapp2.fcbc.fun?ref=${walletData.inviteCode}`);
-    toast.success('Invite link copied!');
   };
 
   const handleSearch = () => {
@@ -178,7 +175,7 @@ export function WalletPopover() {
               <Users className="h-3 w-3 text-muted-foreground" />
               <div>
                 <p className="text-muted-foreground">Referrals</p>
-                <p className="font-mono font-medium">{walletData.referrals}</p>
+                <p className="font-mono font-medium">{referralLoading ? '...' : totalReferrals}</p>
               </div>
             </div>
           </div>
@@ -188,9 +185,9 @@ export function WalletPopover() {
             <Link2 className="h-3 w-3 text-primary" />
             <div className="flex-1">
               <p className="text-[10px] text-muted-foreground">Invite Code</p>
-              <p className="font-mono text-xs">{walletData.inviteCode}</p>
+              <p className="font-mono text-xs">{referralCode || 'Connect wallet'}</p>
             </div>
-            <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={copyInviteLink}>
+            <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={copyReferralLink} disabled={!referralCode}>
               Copy Link
             </Button>
           </div>
