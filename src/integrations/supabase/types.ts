@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          total_referrals: number
+          total_rewards: number
+          wallet_address: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          total_referrals?: number
+          total_rewards?: number
+          wallet_address: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          total_referrals?: number
+          total_rewards?: number
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_address: string
+          referrer_address: string
+          reward_amount: number | null
+          reward_claimed: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_address: string
+          referrer_address: string
+          reward_amount?: number | null
+          reward_claimed?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_address?: string
+          referrer_address?: string
+          reward_amount?: number | null
+          reward_claimed?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
