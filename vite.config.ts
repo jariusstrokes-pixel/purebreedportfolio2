@@ -11,6 +11,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
+    // Prevent multiple React copies in the bundle (fixes "Invalid hook call" / dispatcher null)
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
