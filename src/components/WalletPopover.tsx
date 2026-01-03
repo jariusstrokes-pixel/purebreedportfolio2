@@ -1,4 +1,4 @@
-import { Wallet, Copy, ExternalLink, LogOut, Settings, Sparkles, Search, Ticket, Coins, Database, Crown, Link2, Users } from 'lucide-react';
+import { Wallet, Copy, ExternalLink, LogOut, Settings, Sparkles, Search, Ticket, Coins, Database, Crown, Link2, Users, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { useAccount, useDisconnect, useBalance } from "wagmi";
@@ -35,6 +35,7 @@ export function WalletPopover() {
     custodies: 3,
     voteTickets: 36,
     freeSearchesRemaining: 5,
+    fyreKeys: 5,
   };
 
   const displayAddress = address 
@@ -171,11 +172,11 @@ export function WalletPopover() {
                 <p className="font-mono font-medium">{walletData.voteTickets}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 p-2 rounded bg-muted/50">
-              <Users className="h-3 w-3 text-muted-foreground" />
+            <div className="flex items-center gap-2 p-2 rounded bg-primary/5 border border-primary/20">
+              <Key className="h-3 w-3 text-primary" />
               <div>
-                <p className="text-muted-foreground">Referrals</p>
-                <p className="font-mono font-medium">{referralLoading ? '...' : totalReferrals}</p>
+                <p className="text-muted-foreground">Fyre Keys</p>
+                <p className="font-mono font-medium text-primary">{walletData.fyreKeys}</p>
               </div>
             </div>
           </div>
