@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Trophy, Medal, Crown, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { BreederProfileDialog } from '@/components/dialogs/BreederProfileDialog';
 
 interface LeaderboardEntry {
   rank: number;
@@ -38,59 +40,81 @@ const getRankIcon = (rank: number) => {
 };
 
 export function CustodianLeaderboard() {
+  const [selectedBreeder, setSelectedBreeder] = useState<LeaderboardEntry | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleBreederClick = (entry: LeaderboardEntry) => {
+    setSelectedBreeder(entry);
+    setDialogOpen(true);
+  };
+
   return (
-    <div className="rounded-lg bg-card shadow-card">
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-primary" />
-          <h2 className="font-semibold">Custodian Leaderboard</h2>
+    <>
+      <div className="rounded-lg bg-card shadow-card">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-primary" />
+            <h2 className="font-semibold">Custodian Leaderboard</h2>
+          </div>
+          <Badge variant="secondary" className="text-xs">Epoch 1</Badge>
         </div>
-        <Badge variant="secondary" className="text-xs">Epoch 1</Badge>
-      </div>
-      
-      <div className="divide-y divide-border/50">
-        {leaderboardData.map((entry) => (
-          <div 
-            key={entry.rank}
-            className={cn(
-              "flex items-center justify-between p-3 hover:bg-muted/30 transition-colors",
-              entry.isCurrentUser && "bg-primary/5 border-l-2 border-primary"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-6 flex items-center justify-center">
-                {getRankIcon(entry.rank)}
+        
+        <div className="divide-y divide-border/50">
+          {leaderboardData.map((entry) => (
+            <div 
+              key={entry.rank}
+              className={cn(
+                "flex items-center justify-between p-3 hover:bg-muted/30 transition-colors",
+                entry.isCurrentUser && "bg-primary/5 border-l-2 border-primary"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-6 flex items-center justify-center">
+                  {getRankIcon(entry.rank)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleBreederClick(entry)}
+                      className="font-mono text-xs hover:text-primary transition-colors flex items-center gap-1 text-left"
+                    >
+                      {entry.baseName || entry.address}
+                    </button>
+                    <a 
+                      href={`https://basescan.org/address/${entry.address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ExternalLink className="h-2.5 w-2.5 opacity-50" />
+                    </a>
+                    {entry.isCurrentUser && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 text-primary border-primary/30">You</Badge>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <a 
-                    href={`https://basescan.org/address/${entry.address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-xs hover:text-primary transition-colors flex items-center gap-1"
-                  >
-                    {entry.baseName || entry.address}
-                    <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                  </a>
-                  {entry.isCurrentUser && (
-                    <Badge variant="outline" className="text-[10px] px-1 py-0 text-primary border-primary/30">You</Badge>
-                  )}
+              <div className="flex items-center gap-4 text-right">
+                <div>
+                  <p className="text-sm font-medium">{entry.custodies}</p>
+                  <p className="text-[10px] text-muted-foreground">custodies</p>
+                </div>
+                <div>
+                  <p className="text-sm font-mono">{entry.totalUnits}</p>
+                  <p className="text-[10px] text-muted-foreground">units</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-right">
-              <div>
-                <p className="text-sm font-medium">{entry.custodies}</p>
-                <p className="text-[10px] text-muted-foreground">custodies</p>
-              </div>
-              <div>
-                <p className="text-sm font-mono">{entry.totalUnits}</p>
-                <p className="text-[10px] text-muted-foreground">units</p>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      <BreederProfileDialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        breeder={selectedBreeder}
+      />
+    </>
   );
 }

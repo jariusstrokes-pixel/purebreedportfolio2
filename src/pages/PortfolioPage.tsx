@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { StatCard } from '@/components/portfolio/StatCard';
-import { SpeciesTokenList } from '@/components/portfolio/SpeciesTokenList';
-import { NFTCollections } from '@/components/portfolio/NFTCollections';
+import { PurebreedsDashboard } from '@/components/portfolio/PurebreedsDashboard';
+import { FyreCollectibles } from '@/components/portfolio/FyreCollectibles';
+import { DNAGiftingSection } from '@/components/portfolio/DNAGiftingSection';
 import { useSpecies } from '@/hooks/useSpecies';
-import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2, Ticket } from 'lucide-react';
+import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2, Ticket, Crown, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -178,41 +178,85 @@ export function PortfolioPage() {
         )}
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="Total Portfolio Value"
-          value="$732,463"
-          subValue="+$729,765"
-          subValueClassName="text-success"
-          icon={<Wallet className="h-4 w-4" />}
-          delay={0}
-        />
+      {/* Main Portfolio Stats - Redesigned */}
+      <div className="rounded-xl bg-gradient-to-br from-card via-card to-primary/5 p-6 shadow-card border border-border/50">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* Total Portfolio Value */}
+          <div className="col-span-2 rounded-xl bg-gradient-to-br from-primary/10 to-transparent p-4 border border-primary/20">
+            <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
+            <p className="text-3xl font-bold text-primary">$17,532,463</p>
+            <p className="text-sm text-success flex items-center gap-1 mt-1">
+              <TrendingUp className="h-3 w-3" />
+              +$729,765 24hrs
+            </p>
+          </div>
+
+          {/* Total DNA Units */}
+          <div className="rounded-lg bg-muted/30 p-3 border border-border">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Dna className="h-4 w-4" />
+              <span className="text-xs">Total DNA Units</span>
+            </div>
+            <p className="text-xl font-bold">12.4B</p>
+            <Badge variant="outline" className="text-[10px] mt-1 bg-success/10 text-success border-success/30">
+              top 0.5%
+            </Badge>
+          </div>
+
+          {/* Pre-Assets Held */}
+          <div className="rounded-lg bg-muted/30 p-3 border border-border">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Coins className="h-4 w-4" />
+              <span className="text-xs">Pre-Assets Held</span>
+            </div>
+            <div className="space-y-0.5 text-xs">
+              <p>Casts -12/1234</p>
+              <p>FCbRWA enzyme -480/10k</p>
+              <p>FCbRWA oocytes -38/1234</p>
+            </div>
+          </div>
+
+          {/* Total Genomes */}
+          <div className="rounded-lg bg-muted/30 p-3 border border-border">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Wallet className="h-4 w-4" />
+              <span className="text-xs">Total Genomes</span>
+            </div>
+            <p className="text-xl font-bold">773/1234</p>
+          </div>
+
+          {/* Custody */}
+          <div className="rounded-lg bg-muted/30 p-3 border border-border">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Crown className="h-4 w-4" />
+              <span className="text-xs">Custody</span>
+            </div>
+            <p className="text-xl font-bold">48 PureBreeds</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Pre-Snapshot left: 765</p>
+          </div>
+        </div>
+
+        {/* FCBCC Creator Coin */}
         <a 
           href="https://zora.co/coin/base:0x1234567890" 
           target="_blank" 
           rel="noopener noreferrer"
           className="block"
         >
-          <StatCard
-            label="$FCBCC Creator Coin"
-            value="2,450"
-            icon={<CircleDollarSign className="h-4 w-4" />}
-            delay={100}
-          />
+          <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors">
+            <div className="flex items-center gap-2">
+              <CircleDollarSign className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium text-sm">$FCBCC Creator Coin</p>
+                <p className="text-xs text-muted-foreground">View on Zora</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-bold text-primary">7.8m</p>
+              <p className="text-xs text-muted-foreground">($2,563)</p>
+            </div>
+          </div>
         </a>
-        <StatCard
-          label="Pre-Assets Held"
-          value="122"
-          icon={<Coins className="h-4 w-4" />}
-          delay={200}
-        />
-        <StatCard
-          label="PureBreeds DNA Units"
-          value="122M"
-          icon={<Dna className="h-4 w-4" />}
-          delay={300}
-        />
       </div>
 
       {/* Quick Actions */}
@@ -231,11 +275,14 @@ export function PortfolioPage() {
         </MultiBuyDialog>
       </div>
 
-      {/* Fyre PureBreeds Genomes List */}
-      <SpeciesTokenList species={species} isLoading={isLoading} />
+      {/* DNA Gifting Section */}
+      <DNAGiftingSection />
 
-      {/* NFT Collections */}
-      <NFTCollections />
+      {/* My PureBreeds Dashboard */}
+      <PurebreedsDashboard species={species} isLoading={isLoading} />
+
+      {/* Fyre Collectibles */}
+      <FyreCollectibles />
     </div>
   );
 }

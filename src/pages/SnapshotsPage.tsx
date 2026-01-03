@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Lock, Unlock, Clock, Info, Check, ChevronDown, ChevronUp, ExternalLink, HelpCircle, Crown, Sparkles, TrendingUp, Flame, Users, Coins, Wallet, DollarSign, Dna } from 'lucide-react';
+import { Box, Lock, Unlock, Clock, Info, Check, ChevronDown, ChevronUp, ExternalLink, HelpCircle, Crown, Sparkles, TrendingUp, Flame, Users, Coins, Wallet, DollarSign, Dna, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { TickerHoverCard } from '@/components/TickerHoverCard';
 import { EarningsDashboardDialog } from '@/components/dialogs/EarningsDashboardDialog';
 import { Progress } from '@/components/ui/progress';
-
+import { FavouritePurebreedsSection } from '@/components/FavouritePurebreedsSection';
 interface MysteryBox {
   id: number;
   status: 'blind' | 'revealed' | 'empty';
@@ -545,7 +545,10 @@ export function SnapshotsPage() {
       {/* Custodian Leaderboard - Moved under My Purebreed Genomes */}
       <CustodianLeaderboard />
 
-      {/* Most Profitable Purebreeds - New Section */}
+      {/* Favourite Pre-Snapshot Purebreeds - New Section */}
+      <FavouritePurebreedsSection />
+
+      {/* Most Profitable Purebreeds Syndicate */}
       <div className="rounded-xl bg-card shadow-card border border-border/50">
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-2">
@@ -553,7 +556,7 @@ export function SnapshotsPage() {
               <TrendingUp className="h-5 w-5 text-warning" />
             </div>
             <div>
-              <h2 className="font-semibold">Most Profitable Purebreeds</h2>
+              <h2 className="font-semibold">Most Profitable Purebreeds Syndicate</h2>
               <p className="text-xs text-muted-foreground">Revenue, hybrids & community breakdown</p>
             </div>
           </div>
