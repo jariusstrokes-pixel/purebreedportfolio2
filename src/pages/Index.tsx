@@ -17,14 +17,14 @@ import { Sun, Moon } from 'lucide-react';
 import fcbcWhiteLogo from '@/assets/fcbc_white.png';
 import fcbcDarkLogo from '@/assets/fcbc_dark.png';
 
-type Page = 'snapshots' | 'portfolio';
+type Page = 'portfolio' | 'snapshots';
 
 const queryClient = new QueryClient();
 
 const Index = () => {
   const { theme, toggleTheme } = useTheme();
   const [isConnected, setIsConnected] = useState(false);
-  const [currentPage, setCurrentPage] = useState<Page>('snapshots');
+  const [currentPage, setCurrentPage] = useState<Page>('portfolio');
 
   const logo = theme === 'dark' ? fcbcDarkLogo : fcbcWhiteLogo;
 
@@ -46,7 +46,7 @@ const Index = () => {
           <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border">
             <div className="flex items-center gap-2">
               <img src={logo} alt="FCBC" className="h-8 w-8" />
-              <AnimatedTitle />
+              <AnimatedTitle currentPage={currentPage} />
             </div>
 
             <div className="flex items-center gap-1">
@@ -59,7 +59,7 @@ const Index = () => {
           </header>
 
           <main className="p-4 space-y-4 max-w-4xl mx-auto">
-            {currentPage === 'snapshots' ? <SnapshotsPage /> : <PortfolioPage />}
+            {currentPage === 'portfolio' ? <PortfolioPage /> : <SnapshotsPage />}
           </main>
 
           {/* App Footer */}

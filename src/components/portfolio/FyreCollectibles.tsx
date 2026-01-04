@@ -106,32 +106,32 @@ export function FyreCollectibles({ className }: FyreCollectiblesProps) {
           <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
         </a>
         
-        {/* Holdings Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="rounded-lg bg-primary/5 border border-primary/20 p-2">
-            <p className="text-[10px] text-muted-foreground">Oocytes</p>
-            <p className="text-sm font-bold">{userBalances.oocytes.count}</p>
-            <p className="text-[10px] text-success">{userBalances.oocytes.value} ETH</p>
+        {/* Holdings Summary Cards - 2x2 grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
+            <p className="text-xs text-muted-foreground">Oocytes</p>
+            <p className="text-lg font-bold">{userBalances.oocytes.count}</p>
+            <p className="text-xs text-success">{userBalances.oocytes.value} ETH</p>
           </div>
-          <div className="rounded-lg bg-primary/5 border border-primary/20 p-2">
-            <p className="text-[10px] text-muted-foreground">Enzymes</p>
-            <p className="text-sm font-bold">{userBalances.enzymes.count}</p>
-            <p className="text-[10px] text-success">{userBalances.enzymes.value} ETH</p>
+          <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
+            <p className="text-xs text-muted-foreground">Enzymes</p>
+            <p className="text-lg font-bold">{userBalances.enzymes.count}</p>
+            <p className="text-xs text-success">{userBalances.enzymes.value} ETH</p>
           </div>
-          <div className="rounded-lg bg-muted/50 border border-border p-2 opacity-50">
-            <p className="text-[10px] text-muted-foreground">PureBreeds</p>
-            <p className="text-sm font-bold">{userBalances.purebreeds.count}</p>
-            <p className="text-[10px] text-muted-foreground">soon</p>
+          <div className="rounded-lg bg-muted/50 border border-border p-3 opacity-50">
+            <p className="text-xs text-muted-foreground">PureBreeds</p>
+            <p className="text-lg font-bold">{userBalances.purebreeds.count}</p>
+            <p className="text-xs text-muted-foreground">soon</p>
           </div>
-          <div className="rounded-lg bg-muted/50 border border-border p-2 opacity-50">
-            <p className="text-[10px] text-muted-foreground">Hybrids</p>
-            <p className="text-sm font-bold">{userBalances.hybrids.count}</p>
-            <p className="text-[10px] text-muted-foreground">soon</p>
+          <div className="rounded-lg bg-muted/50 border border-border p-3 opacity-50">
+            <p className="text-xs text-muted-foreground">Hybrids</p>
+            <p className="text-lg font-bold">{userBalances.hybrids.count}</p>
+            <p className="text-xs text-muted-foreground">soon</p>
           </div>
         </div>
       </div>
 
-      {/* Collection Cards Grid */}
+      {/* Collection Cards Grid - 2x2 */}
       <div className="p-4 grid grid-cols-2 gap-3">
         {collections.map((collection) => (
           <a

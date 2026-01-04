@@ -1,6 +1,6 @@
 import { ExternalLink } from 'lucide-react';
 
-// Custom social icons as inline SVGs
+// Custom social icons matching the uploaded reference
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -8,20 +8,28 @@ const XIcon = () => (
 );
 
 const FarcasterIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-    <path d="M18.24 2.4H5.76c-1.86 0-3.36 1.5-3.36 3.36v12.48c0 1.86 1.5 3.36 3.36 3.36h12.48c1.86 0 3.36-1.5 3.36-3.36V5.76c0-1.86-1.5-3.36-3.36-3.36zm-6.24 15.6c-3.6 0-6.48-2.88-6.48-6.48 0-3.6 2.88-6.48 6.48-6.48 3.6 0 6.48 2.88 6.48 6.48 0 3.6-2.88 6.48-6.48 6.48z" />
+  <svg viewBox="0 0 24 24" className="h-4 w-4">
+    <rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M8 8h8M8 12h8M8 16h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 const ZoraIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-    <circle cx="12" cy="12" r="10" />
+  <svg viewBox="0 0 24 24" className="h-4 w-4">
+    <circle cx="12" cy="12" r="9" fill="url(#zoraGradient)" />
+    <defs>
+      <linearGradient id="zoraGradient" x1="3" y1="3" x2="21" y2="21">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#3B82F6" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
 const BaseIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+  <svg viewBox="0 0 24 24" className="h-4 w-4">
+    <rect x="4" y="4" width="16" height="16" rx="2" fill="#0052FF" />
+    <circle cx="12" cy="12" r="4" fill="white" />
   </svg>
 );
 
@@ -30,16 +38,16 @@ const quickLinks = [
   { name: 'FyreApp 0', url: 'https://fyreapp0.fcbc.fun' },
   { name: 'FyreApp 1', url: 'https://fyreapp1.fcbc.fun' },
   { name: 'FyreApp 2', url: '#', active: true },
-  { name: 'FyreApp 3', url: 'https://fyreapp3.fcbc.fun' },
+  { name: 'FyreApp 3', url: '#', active: true },
   { name: 'FyreApp 4', url: 'https://fyreapp4.fcbc.fun' },
   { name: 'FyreApp 5', url: 'https://fyreapp5.fcbc.fun' },
 ];
 
 const socialLinks = [
   { name: 'X', icon: XIcon, url: 'https://x.com/fcbcfun' },
-  { name: 'Base', icon: BaseIcon, url: 'https://base.org' },
   { name: 'Farcaster', icon: FarcasterIcon, url: 'https://warpcast.com/fcbc' },
   { name: 'Zora', icon: ZoraIcon, url: 'https://zora.co/fcbc' },
+  { name: 'Base', icon: BaseIcon, url: 'https://base.org' },
 ];
 
 export function AppFooter() {
@@ -51,15 +59,15 @@ export function AppFooter() {
           <h3 className="font-bold text-lg text-primary">FCBC Club</h3>
         </div>
 
-        {/* Social Icons */}
-        <div className="flex justify-center gap-4">
+        {/* Social Icons - matching uploaded reference style */}
+        <div className="flex justify-center gap-3">
           {socialLinks.map((social) => (
             <a
               key={social.name}
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="h-10 w-10 rounded-lg bg-muted/80 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105"
               title={social.name}
             >
               <social.icon />
@@ -92,7 +100,7 @@ export function AppFooter() {
 
         {/* Copyright */}
         <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border/50">
-          © 2024 FCBC Club. All rights reserved.
+          © 2026 FCBC Club. All rights reserved.
         </p>
       </div>
     </footer>
