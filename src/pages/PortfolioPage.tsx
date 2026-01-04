@@ -3,7 +3,7 @@ import { PurebreedsDashboard } from '@/components/portfolio/PurebreedsDashboard'
 import { FyreCollectibles } from '@/components/portfolio/FyreCollectibles';
 import { DNAGiftingSection } from '@/components/portfolio/DNAGiftingSection';
 import { useSpecies } from '@/hooks/useSpecies';
-import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2, Ticket, Crown, TrendingUp } from 'lucide-react';
+import { Wallet, Coins, Dna, ShoppingCart, Layers, CircleDollarSign, Search, X, Loader2, Key, Crown, TrendingUp, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -34,25 +34,24 @@ const mockSearchResults: Record<string, WalletSearchResult> = {
 };
 
 const FREE_SEARCHES_PER_DAY = 5;
-const VOTE_TICKETS_BALANCE = 36;
+const FYRE_KEYS_BALANCE = 36;
 
 export function PortfolioPage() {
-  const { data: species = [], isLoading } = useSpecies(100);
+  const { data: species = [], isLoading } = useSpecies(250);
   const [addressSearch, setAddressSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<WalletSearchResult | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [freeSearchesUsed, setFreeSearchesUsed] = useState(0);
-  const [voteTickets, setVoteTickets] = useState(VOTE_TICKETS_BALANCE);
+  const [fyreKeys, setFyreKeys] = useState(FYRE_KEYS_BALANCE);
 
   const freeSearchesRemaining = FREE_SEARCHES_PER_DAY - freeSearchesUsed;
 
   const handleSearch = () => {
     if (!addressSearch.trim()) return;
     
-    // Check if user needs to use vote tickets
-    if (freeSearchesRemaining <= 0 && voteTickets <= 0) {
-      toast.error('No free searches or vote tickets remaining');
+    if (freeSearchesRemaining <= 0 && fyreKeys <= 0) {
+      toast.error('No free searches or Fyre Keys remaining');
       return;
     }
     
@@ -63,13 +62,12 @@ export function PortfolioPage() {
     setTimeout(() => {
       setIsSearching(false);
       
-      // Deduct search cost
       if (freeSearchesRemaining > 0) {
         setFreeSearchesUsed(prev => prev + 1);
         toast.info(`Free search used. ${freeSearchesRemaining - 1} remaining today.`);
       } else {
-        setVoteTickets(prev => prev - 1);
-        toast.info(`Vote ticket used. ${voteTickets - 1} remaining.`);
+        setFyreKeys(prev => prev - 1);
+        toast.info(`Fyre Key used. ${fyreKeys - 1} remaining.`);
       }
       
       if (addressSearch.toLowerCase().includes('0x1234')) {
@@ -110,8 +108,8 @@ export function PortfolioPage() {
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
           <span>Free searches: {freeSearchesRemaining}/{FREE_SEARCHES_PER_DAY} today</span>
           <span className="flex items-center gap-1">
-            <Ticket className="h-3 w-3" />
-            Vote Tickets: {voteTickets}
+            <Key className="h-3 w-3" />
+            Fyre Keys: {fyreKeys}
           </span>
         </div>
         <div className="relative flex gap-2">
@@ -210,9 +208,39 @@ export function PortfolioPage() {
               <span className="text-xs">Pre-Assets Held</span>
             </div>
             <div className="space-y-0.5 text-xs">
-              <p>Casts -12/1234</p>
-              <p>FCbRWA enzyme -480/10k</p>
-              <p>FCbRWA oocytes -38/1234</p>
+              <p>
+                <a 
+                  href="https://warpcast.com/fcbc" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  Casts -12/1234
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+              </p>
+              <p>
+                <a 
+                  href="https://opensea.io/collection/fcbrwa-enzyme" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  FCbRWA enzyme -480/10k
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+              </p>
+              <p>
+                <a 
+                  href="https://opensea.io/collection/fcbrwa-oocytes" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  FCbRWA oocytes -38/1234
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+              </p>
             </div>
           </div>
 
@@ -222,7 +250,7 @@ export function PortfolioPage() {
               <Wallet className="h-4 w-4" />
               <span className="text-xs">Total Genomes</span>
             </div>
-            <p className="text-xl font-bold">773/1234</p>
+            <p className="text-xl font-bold">234/1234</p>
           </div>
 
           {/* Custody */}
@@ -275,14 +303,14 @@ export function PortfolioPage() {
         </MultiBuyDialog>
       </div>
 
-      {/* DNA Gifting Section */}
-      <DNAGiftingSection />
+      {/* Fyre Collectibles - Unified section */}
+      <FyreCollectibles />
 
       {/* My PureBreeds Dashboard */}
       <PurebreedsDashboard species={species} isLoading={isLoading} />
 
-      {/* Fyre Collectibles */}
-      <FyreCollectibles />
+      {/* DNA Gifting Section - Moved to last */}
+      <DNAGiftingSection />
     </div>
   );
 }

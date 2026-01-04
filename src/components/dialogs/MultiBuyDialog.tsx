@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Layers, Search, X, Check, Key, Lock } from 'lucide-react';
+import { Layers, Search, X, Check, Key, Lock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,7 +12,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { toast } from 'sonner';
+import { BuyAmountDialog } from './BuyAmountDialog';
 
 interface PreAsset {
   id: string;
@@ -22,7 +29,6 @@ interface PreAsset {
   imageUrl: string;
 }
 
-// Generate list of purebreeds for selection
 const allPurebreeds: PreAsset[] = [
   { id: '1', name: 'Javan Rhinoceros', ticker: '$FCBC121', mcap: '$2.4M', imageUrl: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=80&h=80&fit=crop' },
   { id: '2', name: 'Sumatran Tiger', ticker: '$FCBC45', mcap: '$1.8M', imageUrl: 'https://images.unsplash.com/photo-1602491453631-e2a5ad90a131?w=80&h=80&fit=crop' },
@@ -50,6 +56,8 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [fyreKeys] = useState(FYRE_KEYS_BALANCE);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showBuyDialog, setShowBuyDialog] = useState(false);
+  const [selectedTicker, setSelectedTicker] = useState('');
 
   const filteredAssets = useMemo(() => {
     if (!search) return allPurebreeds;
@@ -108,125 +116,163 @@ export function MultiBuyDialog({ children }: MultiBuyDialogProps) {
     setSelected(new Set());
   };
 
+  const handleBuySingle = (ticker: string) => {
+    setSelectedTicker(ticker.replace('$', ''));
+    setShowBuyDialog(true);
+  };
+
   const selectedAssets = allPurebreeds.filter(a => selected.has(a.id));
   const allSelected = selected.size === filteredAssets.length && filteredAssets.length > 0;
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Layers className="h-5 w-5" />
-              MultiBuy Purebreeds
-            </div>
-            <Badge variant="outline" className="gap-1">
-              <Key className="h-3 w-3" />
-              {fyreKeys} Fyre Keys
-            </Badge>
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+        <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Layers className="h-5 w-5" />
+                MultiBuy Purebreeds
+              </div>
+              <Badge variant="outline" className="gap-1">
+                <Key className="h-3 w-3" />
+                {fyreKeys} Fyre Keys
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
 
-        {!isUnlocked ? (
-          <div className="flex flex-col items-center justify-center py-8 space-y-4">
-            <div className="p-4 rounded-full bg-primary/10">
-              <Lock className="h-12 w-12 text-primary" />
+          {!isUnlocked ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="p-4 rounded-full bg-primary/10">
+                <Lock className="h-12 w-12 text-primary" />
+              </div>
+              <div className="text-center">
+                <h3 className="font-semibold">Unlock MultiBuy</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Requires {KEYS_REQUIRED} Fyre Key to unlock
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button onClick={handleUnlock} className="gap-2">
+                  <Key className="h-4 w-4" />
+                  Unlock with Fyre Key
+                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px]">
+                      <p className="text-xs">Fyre Keys are utility tokens that unlock premium features like QuickBuy and MultiBuy. Earn keys by participating in snapshot events, gifting DNA, or purchasing from the marketplace.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
-            <div className="text-center">
-              <h3 className="font-semibold">Unlock MultiBuy</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Requires {KEYS_REQUIRED} Fyre Key to unlock
-              </p>
-            </div>
-            <Button onClick={handleUnlock} className="gap-2">
-              <Key className="h-4 w-4" />
-              Unlock with Fyre Key
-            </Button>
-          </div>
-        ) : (
-          <>
-            {/* Selected Items */}
-            {selected.size > 0 && (
-              <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-muted">
-                {selectedAssets.map((asset) => (
-                  <Badge
-                    key={asset.id}
-                    variant="secondary"
-                    className="gap-1 pr-1"
-                  >
-                    {asset.ticker}
-                    <button
-                      onClick={() => removeAsset(asset.id)}
-                      className="ml-1 p-0.5 rounded hover:bg-background/50"
+          ) : (
+            <>
+              {/* Selected Items */}
+              {selected.size > 0 && (
+                <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-muted">
+                  {selectedAssets.map((asset) => (
+                    <Badge
+                      key={asset.id}
+                      variant="secondary"
+                      className="gap-1 pr-1"
                     >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
+                      {asset.ticker}
+                      <button
+                        onClick={() => removeAsset(asset.id)}
+                        className="ml-1 p-0.5 rounded hover:bg-background/50"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name or ticker..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            )}
 
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name or ticker..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+              {/* Mark All Checkbox */}
+              <div 
+                className="flex items-center gap-3 p-2 rounded-lg bg-primary/10 cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={toggleAll}
+              >
+                <Checkbox checked={allSelected} />
+                <span className="font-medium text-sm">Mark All ({filteredAssets.length})</span>
+              </div>
 
-            {/* Mark All Checkbox */}
-            <div 
-              className="flex items-center gap-3 p-2 rounded-lg bg-primary/10 cursor-pointer hover:bg-primary/20 transition-colors"
-              onClick={toggleAll}
-            >
-              <Checkbox checked={allSelected} />
-              <span className="font-medium text-sm">Mark All ({filteredAssets.length})</span>
-            </div>
-
-            {/* Asset List */}
-            <ScrollArea className="flex-1 max-h-[250px]">
-              <div className="space-y-1 pr-4">
-                {filteredAssets.map((asset) => (
-                  <div
-                    key={asset.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                    onClick={() => toggleAsset(asset.id)}
-                  >
-                    <Checkbox checked={selected.has(asset.id)} />
-                    <img 
-                      src={asset.imageUrl} 
-                      alt={asset.name}
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{asset.name}</p>
-                      <p className="text-xs text-muted-foreground font-mono">{asset.ticker}</p>
+              {/* Asset List */}
+              <ScrollArea className="flex-1 max-h-[250px]">
+                <div className="space-y-1 pr-4">
+                  {filteredAssets.map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                      onClick={() => toggleAsset(asset.id)}
+                    >
+                      <Checkbox checked={selected.has(asset.id)} />
+                      <img 
+                        src={asset.imageUrl} 
+                        alt={asset.name}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{asset.name}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{asset.ticker}</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground font-mono">{asset.mcap}</span>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-6 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBuySingle(asset.ticker);
+                        }}
+                      >
+                        Buy
+                      </Button>
                     </div>
-                    <span className="text-xs text-muted-foreground font-mono">{asset.mcap}</span>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+                  ))}
+                </div>
+              </ScrollArea>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <span className="text-sm text-muted-foreground">
-                {selected.size} / 100 selected
-              </span>
-              <Button onClick={handleBuyAll} disabled={selected.size === 0} className="gap-2">
-                <Check className="h-4 w-4" />
-                Buy All ({selected.size})
-              </Button>
-            </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-4 border-t border-border">
+                <span className="text-sm text-muted-foreground">
+                  {selected.size} / 100 selected
+                </span>
+                <Button onClick={handleBuyAll} disabled={selected.size === 0} className="gap-2">
+                  <Check className="h-4 w-4" />
+                  Buy All ({selected.size})
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <BuyAmountDialog 
+        open={showBuyDialog} 
+        onOpenChange={setShowBuyDialog}
+        ticker={selectedTicker}
+      />
+    </>
   );
 }

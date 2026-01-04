@@ -58,7 +58,7 @@ export function LandingPage({ onConnect }: LandingPageProps) {
 
         {/* Title */}
         <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4 tracking-tight animate-fade-in">
-          FyreApp 2
+          FyreApp 2 and 3
         </h1>
 
         {/* Caption with typing animation */}

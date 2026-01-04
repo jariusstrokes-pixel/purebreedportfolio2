@@ -22,7 +22,7 @@ interface ApiResponse {
   data: Species[];
 }
 
-export function useSpecies(count: number = 25) {
+export function useSpecies(count: number = 250) {
   return useQuery<Species[]>({
     queryKey: ['species', count],
     queryFn: async () => {

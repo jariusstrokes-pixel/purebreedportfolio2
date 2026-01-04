@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-const titles = ['FyreApp 2', 'Custody Snapshots'];
+type Page = 'portfolio' | 'snapshots';
 
-export function AnimatedTitle() {
+interface AnimatedTitleProps {
+  currentPage: Page;
+}
+
+const portfolioTitles = ['FyreApp 2', 'Portfolio Manager'];
+const snapshotsTitles = ['FyreApp 3', 'Custody Snapshots'];
+
+export function AnimatedTitle({ currentPage }: AnimatedTitleProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const titles = currentPage === 'portfolio' ? portfolioTitles : snapshotsTitles;
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [currentPage]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -17,7 +30,7 @@ export function AnimatedTitle() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [titles.length]);
 
   return (
     <span 
