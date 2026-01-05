@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
+import { Wallet, Camera } from 'lucide-react';
 import fcbcWhiteLogo from '@/assets/fcbc_white.png';
 import fcbcDarkLogo from '@/assets/fcbc_dark.png';
 
-interface LandingPageProps {
-  onConnect: () => void;
-}
-
-export function LandingPage({ onConnect }: LandingPageProps) {
+export function LandingPage() {
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const logo = theme === 'dark' ? fcbcDarkLogo : fcbcWhiteLogo;
   const [showCaption, setShowCaption] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const timer = setTimeout(() => setShowCaption(true), 300);
     return () => clearTimeout(timer);
   }, []);
@@ -94,17 +94,31 @@ export function LandingPage({ onConnect }: LandingPageProps) {
           </a>
         </p>
 
-        {/* Connect Button */}
-        <Button
-          onClick={onConnect}
-          size="lg"
-          className={`px-12 py-6 text-lg rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.6)] transition-all duration-300 ${
+        {/* Two Buttons */}
+        <div 
+          className={`flex flex-col sm:flex-row gap-4 w-full max-w-md transition-all duration-1000 ${
             showCaption ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
           style={{ transitionDelay: '700ms' }}
         >
-          CONNECT
-        </Button>
+          <Button
+            onClick={() => navigate('/onboarding/portfolio')}
+            size="lg"
+            className="flex-1 px-8 py-6 text-lg rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.6)] transition-all duration-300 gap-2"
+          >
+            <Wallet className="h-5 w-5" />
+            Portfolio Manager
+          </Button>
+          <Button
+            onClick={() => navigate('/onboarding/snapshots')}
+            size="lg"
+            variant="outline"
+            className="flex-1 px-8 py-6 text-lg rounded-full border-primary/50 text-primary hover:bg-primary/10 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-all duration-300 gap-2"
+          >
+            <Camera className="h-5 w-5" />
+            Snapshot Custody
+          </Button>
+        </div>
       </div>
     </div>
   );
