@@ -415,7 +415,7 @@ export function SnapshotsPage() {
           <div className="flex gap-2 mt-4"><Button variant="outline" onClick={() => setSelectedBox(null)} className="flex-1">Cancel</Button><Button onClick={revealHint} className="flex-1">Pay $1</Button></div>
         </DialogContent>
       </Dialog>
-      <EarningsDashboardDialog open={earningsDialogOpen} onOpenChange={setEarningsDialogOpen} ticker={selectedAsset?.ticker || ''} speciesName={selectedAsset?.name || ''} />
+      <EarningsDashboardDialog open={earningsDialogOpen} onOpenChange={setEarningsDialogOpen} asset={selectedAsset} />
     </div>
   );
 }

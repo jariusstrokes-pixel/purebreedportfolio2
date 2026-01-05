@@ -202,45 +202,53 @@ export function PortfolioPage() {
           </div>
 
           {/* Pre-Assets Held */}
-          <div className="rounded-lg bg-muted/30 p-3 border border-border">
+          <div className="rounded-lg bg-muted/30 p-3 border border-border group relative">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Coins className="h-4 w-4" />
               <span className="text-xs">Pre-Assets Held</span>
             </div>
-            <div className="space-y-0.5 text-xs">
-              <p>
+            <p className="text-xl font-bold">122</p>
+            {/* Hover popup with breakdown */}
+            <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block w-56">
+              <div className="bg-card border border-border rounded-lg shadow-lg p-3 space-y-2">
+                <p className="text-xs text-muted-foreground font-medium mb-2">Breakdown</p>
                 <a 
                   href="https://warpcast.com/fcbc" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                  className="flex items-center justify-between text-xs hover:text-primary"
                 >
-                  Casts -12/1234
-                  <ExternalLink className="h-2.5 w-2.5" />
+                  <span className="flex items-center gap-1">
+                    Casts
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </span>
+                  <span className="font-mono">12/1234</span>
                 </a>
-              </p>
-              <p>
                 <a 
                   href="https://opensea.io/collection/fcbrwa-enzyme" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                  className="flex items-center justify-between text-xs hover:text-primary"
                 >
-                  FCbRWA enzyme -480/10k
-                  <ExternalLink className="h-2.5 w-2.5" />
+                  <span className="flex items-center gap-1">
+                    FCbRWA Enzyme
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </span>
+                  <span className="font-mono">72/10k</span>
                 </a>
-              </p>
-              <p>
                 <a 
                   href="https://opensea.io/collection/fcbrwa-oocytes" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-primary hover:underline inline-flex items-center gap-1"
+                  className="flex items-center justify-between text-xs hover:text-primary"
                 >
-                  FCbRWA oocytes -38/1234
-                  <ExternalLink className="h-2.5 w-2.5" />
+                  <span className="flex items-center gap-1">
+                    FCbRWA Oocytes
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </span>
+                  <span className="font-mono">38/1234</span>
                 </a>
-              </p>
+              </div>
             </div>
           </div>
 
