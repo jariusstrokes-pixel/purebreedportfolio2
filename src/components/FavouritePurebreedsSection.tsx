@@ -41,75 +41,46 @@ const favouritePurebreeds = [
 
 export function FavouritePurebreedsSection() {
   const [visibleCount, setVisibleCount] = useState(10);
-
   const displayedItems = favouritePurebreeds.slice(0, visibleCount);
-
-  const handleExpand = (count: number) => {
-    setVisibleCount(count);
-  };
 
   return (
     <div className="rounded-xl bg-card shadow-card border border-border/50">
-      <div className="flex items-center justify-between border-b border-border p-4">
+      <div className="flex items-center justify-between border-b border-border p-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-pink-500/10">
-            <Heart className="h-5 w-5 text-pink-500" />
-          </div>
-          <div>
-            <h2 className="font-semibold">Favourite Purebreeds</h2>
-            <p className="text-xs text-muted-foreground">Based on Base Squares votes • Pre-snapshot only</p>
-          </div>
+          <Heart className="h-4 w-4 text-pink-500" />
+          <h2 className="font-semibold text-sm">Favourite Purebreeds</h2>
+          <span className="text-[10px] text-muted-foreground hidden sm:inline">• Pre-snapshot votes</span>
         </div>
         <div className="flex gap-1">
           {[10, 25, 50].map((count) => (
-            <Button
-              key={count}
-              variant={visibleCount === count ? "default" : "outline"}
-              size="sm"
-              className="h-6 text-xs px-2"
-              onClick={() => handleExpand(count)}
-              disabled={count > favouritePurebreeds.length}
-            >
-              Top {count}
+            <Button key={count} variant={visibleCount === count ? "default" : "ghost"} size="sm" className="h-6 text-[10px] px-2" onClick={() => setVisibleCount(count)} disabled={count > favouritePurebreeds.length}>
+              {count}
             </Button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 p-4">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 p-3">
         {displayedItems.map((item, i) => (
           <TickerHoverCard key={i} ticker={item.symbol}>
             <div className={cn(
-              "group rounded-xl p-3 border-2 transition-all duration-200 cursor-pointer hover:shadow-md",
-              "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-amber-500/5",
-              item.rank <= 3 && "border-pink-500/40 bg-gradient-to-br from-pink-500/10 to-amber-500/5"
+              "group rounded-lg p-2 border transition-all duration-200 cursor-pointer hover:shadow-md",
+              "border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent",
+              item.rank <= 3 && "border-pink-500/40"
             )}>
-              <div className="flex items-center gap-2 mb-2">
-                <Badge 
-                  variant="outline" 
-                  className={cn(
-                    "text-[10px] px-1.5 py-0",
-                    item.rank === 1 && "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
-                    item.rank === 2 && "bg-gray-400/10 text-gray-400 border-gray-400/30",
-                    item.rank === 3 && "bg-amber-600/10 text-amber-600 border-amber-600/30"
-                  )}
-                >
-                  #{item.rank}
-                </Badge>
-                <Heart className={cn(
-                  "h-3 w-3",
-                  item.rank <= 3 ? "text-pink-500 fill-pink-500" : "text-muted-foreground"
-                )} />
+              <div className="flex items-center justify-between mb-1">
+                <Badge variant="outline" className={cn(
+                  "text-[9px] px-1 py-0 h-4",
+                  item.rank === 1 && "text-yellow-500 border-yellow-500/30",
+                  item.rank === 2 && "text-gray-400 border-gray-400/30",
+                  item.rank === 3 && "text-amber-600 border-amber-600/30"
+                )}>#{item.rank}</Badge>
+                {item.rank <= 3 && <Heart className="h-2.5 w-2.5 text-pink-500 fill-pink-500" />}
               </div>
-              <div className="w-full h-16 rounded-lg bg-muted flex items-center justify-center text-2xl mb-2 group-hover:scale-105 transition-transform">
-                🦁
-              </div>
-              <p className="text-xs font-medium truncate">{item.name}</p>
-              <p className="text-[10px] text-muted-foreground font-mono">${item.symbol}</p>
-              <div className="flex items-center justify-between mt-1 text-[10px] text-muted-foreground">
-                <span>{item.votes.toLocaleString()} votes</span>
-                <span>{item.holders} holders</span>
-              </div>
+              <div className="w-full h-10 rounded bg-muted flex items-center justify-center text-lg mb-1">🦁</div>
+              <p className="text-[10px] font-medium truncate">{item.name}</p>
+              <p className="text-[9px] text-muted-foreground font-mono">${item.symbol}</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{item.votes.toLocaleString()} votes</p>
             </div>
           </TickerHoverCard>
         ))}
