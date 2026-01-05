@@ -206,6 +206,16 @@ export function SnapshotsPage() {
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 rounded-lg bg-success/10"><TrendingUp className="h-4 w-4 text-success" /></div>
           <h2 className="font-semibold">Leading Pre-Snapshots</h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[200px]">
+                <p className="text-xs">Pre-snapshot species where you currently hold the #1 position. If snapped, you become the custodian.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {leadingPreSnapshots.map((species, i) => (
@@ -243,7 +253,18 @@ export function SnapshotsPage() {
                 <p className="text-xs text-muted-foreground">Tap to reveal species hints</p>
               </div>
             </div>
-            <Badge className="bg-gradient-to-r from-primary/20 to-warning/20 text-primary border-primary/30 animate-pulse">$1 each</Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge className="bg-gradient-to-r from-primary/20 to-warning/20 text-primary border-primary/30 cursor-help">
+                    Reveal for $1
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Pay $1 to reveal a hint about which species may be snapped next</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="grid grid-cols-5 gap-2 sm:gap-3">
             {boxes.map(box => (
@@ -343,67 +364,52 @@ export function SnapshotsPage() {
       <CustodianLeaderboard />
       <FavouritePurebreedsSection />
 
-      {/* Syndicate */}
+      {/* Syndicate - Simplified as compact list with expand */}
       <div className="rounded-xl bg-card shadow-card border border-border/50">
-        <div className="flex items-center justify-between border-b border-border p-4">
+        <div className="flex items-center justify-between border-b border-border p-3">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-warning/10"><TrendingUp className="h-5 w-5 text-warning" /></div>
-            <div>
-              <h2 className="font-semibold">Syndicate</h2>
-              <p className="text-xs text-muted-foreground">Revenue, hybrids & community breakdown</p>
-            </div>
+            <TrendingUp className="h-4 w-4 text-warning" />
+            <h2 className="font-semibold text-sm">Syndicate</h2>
           </div>
           <div className="flex gap-1">
             {[10, 25, 50].map((count) => (
-              <Button key={count} variant={syndicateVisibleCount === count ? "default" : "outline"} size="sm" className="h-6 text-xs px-2" onClick={() => setSyndicateVisibleCount(count)}>
-                Top {count}
+              <Button key={count} variant={syndicateVisibleCount === count ? "default" : "ghost"} size="sm" className="h-6 text-[10px] px-2" onClick={() => setSyndicateVisibleCount(count)}>
+                {count}
               </Button>
             ))}
           </div>
         </div>
-        <div className="divide-y divide-border/50">
-          {displayedSyndicates.map((purebreed) => (
-            <div key={purebreed.symbol} className="p-4">
-              <button onClick={() => setExpandedPurebreed(expandedPurebreed === purebreed.symbol ? null : purebreed.symbol)} className="w-full">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl">🦁</div>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center gap-2">
-                      <p className="font-mono font-bold text-primary">${purebreed.symbol}</p>
-                      <Badge variant="outline" className="text-[10px]">{purebreed.hybridsSpun} hybrids</Badge>
+        <div className="divide-y divide-border/30">
+          {displayedSyndicates.map((purebreed, idx) => (
+            <Collapsible key={purebreed.symbol}>
+              <CollapsibleTrigger asChild>
+                <button className="w-full p-3 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground w-5">{idx + 1}</span>
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-sm">🦁</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="font-mono text-xs font-bold truncate">${purebreed.symbol}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{purebreed.name}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{purebreed.name}</p>
-                    <div className="flex items-center gap-4 mt-1">
-                      <div className="flex items-center gap-1 text-success"><Coins className="h-3 w-3" /><span className="text-xs font-medium">{purebreed.totalRevenue}</span></div>
-                      <div className="flex items-center gap-1 text-destructive"><Flame className="h-3 w-3" /><span className="text-xs">{purebreed.supplyBurnt} burnt</span></div>
+                    <div className="flex items-center gap-3 text-right">
+                      <span className="text-xs text-success font-medium">{purebreed.totalRevenue}</span>
+                      <span className="text-[10px] text-muted-foreground">{purebreed.hybridsSpun} hybrids</span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
-                  <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition-transform", expandedPurebreed === purebreed.symbol && "rotate-180")} />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-3 pb-3 pt-1 space-y-2 bg-muted/20">
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="p-2 rounded bg-success/10"><p className="text-sm font-bold text-success">{purebreed.totalRevenue}</p><p className="text-[9px] text-muted-foreground">Revenue</p></div>
+                    <div className="p-2 rounded bg-primary/10"><p className="text-sm font-bold text-primary">{purebreed.custodianEarnings}</p><p className="text-[9px] text-muted-foreground">Custodian</p></div>
+                    <div className="p-2 rounded bg-destructive/10"><p className="text-sm font-bold text-destructive">{purebreed.burnPercentage}%</p><p className="text-[9px] text-muted-foreground">Burnt</p></div>
+                  </div>
+                  <Progress value={purebreed.burnPercentage} className="h-1.5" />
                 </div>
-              </button>
-              {expandedPurebreed === purebreed.symbol && (
-                <div className="mt-4 space-y-4 animate-fade-in">
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-lg bg-success/5 border border-success/20 p-3 text-center">
-                      <p className="text-lg font-bold text-success">{purebreed.totalRevenue}</p>
-                      <p className="text-[10px] text-muted-foreground">Total Revenue</p>
-                    </div>
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-center">
-                      <p className="text-lg font-bold text-primary">{purebreed.custodianEarnings}</p>
-                      <p className="text-[10px] text-muted-foreground">Custodian Earnings</p>
-                    </div>
-                    <div className="rounded-lg bg-destructive/5 border border-destructive/20 p-3 text-center">
-                      <p className="text-lg font-bold text-destructive">{purebreed.burnPercentage}%</p>
-                      <p className="text-[10px] text-muted-foreground">Supply Burnt</p>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs"><span className="text-muted-foreground">Supply Burnt Progress</span><span className="font-medium">{purebreed.supplyBurnt}</span></div>
-                    <Progress value={purebreed.burnPercentage} className="h-2" />
-                  </div>
-                </div>
-              )}
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
         </div>
       </div>

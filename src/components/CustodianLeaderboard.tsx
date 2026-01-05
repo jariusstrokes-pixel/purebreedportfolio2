@@ -50,71 +50,44 @@ export function CustodianLeaderboard() {
 
   return (
     <>
-      <div className="rounded-lg bg-card shadow-card">
-        <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="rounded-xl bg-card shadow-card border border-border/50">
+        <div className="flex items-center justify-between p-3 border-b border-border">
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-primary" />
-            <h2 className="font-semibold">Custodian Leaderboard</h2>
+            <h2 className="font-semibold text-sm">Custodian Leaderboard</h2>
           </div>
-          <Badge variant="secondary" className="text-xs">Epoch 1</Badge>
+          <Badge variant="secondary" className="text-[10px]">Epoch 1</Badge>
         </div>
         
-        <div className="divide-y divide-border/50">
+        <div className="divide-y divide-border/30">
           {leaderboardData.map((entry) => (
             <div 
               key={entry.rank}
               className={cn(
-                "flex items-center justify-between p-3 hover:bg-muted/30 transition-colors",
+                "flex items-center justify-between p-2.5 hover:bg-muted/30 transition-colors",
                 entry.isCurrentUser && "bg-primary/5 border-l-2 border-primary"
               )}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-6 flex items-center justify-center">
-                  {getRankIcon(entry.rank)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleBreederClick(entry)}
-                      className="font-mono text-xs hover:text-primary transition-colors flex items-center gap-1 text-left"
-                    >
-                      {entry.baseName || entry.address}
-                    </button>
-                    <a 
-                      href={`https://basescan.org/address/${entry.address}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                    </a>
-                    {entry.isCurrentUser && (
-                      <Badge variant="outline" className="text-[10px] px-1 py-0 text-primary border-primary/30">You</Badge>
-                    )}
-                  </div>
-                </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 flex items-center justify-center">{getRankIcon(entry.rank)}</div>
+                <button onClick={() => handleBreederClick(entry)} className="font-mono text-xs hover:text-primary transition-colors truncate max-w-[120px]">
+                  {entry.baseName || entry.address}
+                </button>
+                <a href={`https://basescan.org/address/${entry.address}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary" onClick={(e) => e.stopPropagation()}>
+                  <ExternalLink className="h-2.5 w-2.5 opacity-50" />
+                </a>
+                {entry.isCurrentUser && <Badge variant="outline" className="text-[9px] px-1 py-0 text-primary border-primary/30">You</Badge>}
               </div>
-              <div className="flex items-center gap-4 text-right">
-                <div>
-                  <p className="text-sm font-medium">{entry.custodies}</p>
-                  <p className="text-[10px] text-muted-foreground">custodies</p>
-                </div>
-                <div>
-                  <p className="text-sm font-mono">{entry.totalUnits}</p>
-                  <p className="text-[10px] text-muted-foreground">units</p>
-                </div>
+              <div className="flex items-center gap-3 text-right">
+                <span className="text-xs font-medium">{entry.custodies}</span>
+                <span className="text-xs font-mono text-muted-foreground">{entry.totalUnits}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <BreederProfileDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
-        breeder={selectedBreeder}
-      />
+      <BreederProfileDialog open={dialogOpen} onOpenChange={setDialogOpen} breeder={selectedBreeder} />
     </>
   );
 }
