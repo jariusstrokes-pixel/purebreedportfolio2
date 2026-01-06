@@ -17,62 +17,35 @@ export function useReferrals(walletAddress: string | undefined) {
     isLoading: false,
   });
 
-  const generateCode = (address: string): string => {
-    // Generate a unique code based on wallet address
-    const hash = address.slice(2, 10).toUpperCase();
-    return `FCBC-${hash}`;
-  };
-
   const fetchOrCreateReferralCode = useCallback(async () => {
     if (!walletAddress) return;
     
     setReferralData(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // Check if user already has a referral code
-      const { data: existingCode, error: fetchError } = await supabase
-        .from('referral_codes')
-        .select('*')
-        .eq('wallet_address', walletAddress)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('referrals', {
+        body: {
+          action: 'getOrCreateCode',
+          walletAddress,
+        },
+      });
 
-      if (fetchError) {
-        console.error('Error fetching referral code:', fetchError);
+      if (error) {
+        console.error('Error fetching referral code:', error);
         setReferralData(prev => ({ ...prev, isLoading: false }));
         return;
       }
 
-      if (existingCode) {
-        setReferralData({
-          code: existingCode.code,
-          totalReferrals: existingCode.total_referrals,
-          totalRewards: Number(existingCode.total_rewards),
-          isLoading: false,
-        });
-        return;
-      }
-
-      // Create new referral code
-      const newCode = generateCode(walletAddress);
-      const { data: newCodeData, error: createError } = await supabase
-        .from('referral_codes')
-        .insert({
-          wallet_address: walletAddress,
-          code: newCode,
-        })
-        .select()
-        .single();
-
-      if (createError) {
-        console.error('Error creating referral code:', createError);
+      if (data.error) {
+        console.error('API error:', data.error);
         setReferralData(prev => ({ ...prev, isLoading: false }));
         return;
       }
 
       setReferralData({
-        code: newCodeData.code,
-        totalReferrals: newCodeData.total_referrals,
-        totalRewards: Number(newCodeData.total_rewards),
+        code: data.code,
+        totalReferrals: data.totalReferrals,
+        totalRewards: data.totalRewards,
         isLoading: false,
       });
     } catch (error) {
@@ -88,62 +61,23 @@ export function useReferrals(walletAddress: string | undefined) {
     }
 
     try {
-      // Check if this user has already been referred
-      const { data: existingReferral } = await supabase
-        .from('referrals')
-        .select('id')
-        .eq('referred_address', walletAddress)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('referrals', {
+        body: {
+          action: 'submitReferral',
+          walletAddress,
+          referralCode,
+        },
+      });
 
-      if (existingReferral) {
-        toast.error('This wallet has already been referred');
-        return false;
-      }
-
-      // Find the referrer by code
-      const { data: referrerData, error: referrerError } = await supabase
-        .from('referral_codes')
-        .select('wallet_address')
-        .eq('code', referralCode)
-        .maybeSingle();
-
-      if (referrerError || !referrerData) {
-        toast.error('Invalid referral code');
-        return false;
-      }
-
-      if (referrerData.wallet_address === walletAddress) {
-        toast.error('You cannot refer yourself');
-        return false;
-      }
-
-      // Create the referral
-      const { error: insertError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_address: referrerData.wallet_address,
-          referred_address: walletAddress,
-          referral_code: referralCode,
-        });
-
-      if (insertError) {
-        console.error('Error creating referral:', insertError);
+      if (error) {
+        console.error('Error submitting referral:', error);
         toast.error('Failed to submit referral');
         return false;
       }
 
-      // Update referrer's stats by incrementing total_referrals
-      const { data: currentStats } = await supabase
-        .from('referral_codes')
-        .select('total_referrals')
-        .eq('wallet_address', referrerData.wallet_address)
-        .single();
-      
-      if (currentStats) {
-        await supabase
-          .from('referral_codes')
-          .update({ total_referrals: currentStats.total_referrals + 1 })
-          .eq('wallet_address', referrerData.wallet_address);
+      if (data.error) {
+        toast.error(data.error);
+        return false;
       }
 
       toast.success('Referral submitted successfully!');
