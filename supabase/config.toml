@@ -1,1 +1,4 @@
 project_id = "iispvnktrjatvwkygkci"
+
+[functions.referrals]
+verify_jwt = false
